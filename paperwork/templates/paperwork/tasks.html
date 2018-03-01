@@ -1,0 +1,17 @@
+The last step! Now you can look at all the things you need to do.<br>
+<br>
+Right now I have no filters for before / after the present day, or any fancy displays, or even recognizing what day of the week it is.<br>
+<br>
+{% if tasks %}
+	<br>
+	I know about these tasks:<br>
+    <ul>
+    {% for task in tasks %}
+        <li> {{task}} </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    No tasks!<br>
+{% endif %}
+
+<a href="/" >Back to the beginning.</a>

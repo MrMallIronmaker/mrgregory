@@ -1,0 +1,18 @@
+A deliverable has a final deadline, with is measured in days from some date information that a client has. For example, an initial mental health assessment is due 30 days after the first session. In that case, the name is "initial mental health assessment" the spacing is "+30" (positive for after, negative for before) and the anchor is "the first session."
+
+<form action="/new_deliverable/" method="post">
+{% csrf_token %}
+What is the title of this deliverable? <input type="text" name="title" /><br>
+What is the title of the final deadline? <input type="text" name="deadline_title" /><br>
+What is the spacing of the final deadline? <input type="number" name="number" /><br>
+What is the anchor from which that time is measured?
+
+<select name="anchor">
+{% for cit in client_info_type_list %}
+    <option value="{{cit.id}}">{{cit.title}}</option>
+{% endfor %}
+</select>
+<br>
+
+<input type="submit" value="submit" />
+</form>
