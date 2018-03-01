@@ -1,0 +1,27 @@
+Let's start with the kinds of information I should keep track of for each of your clients.<br>
+<br>
+Right now, I only have dates programmed in. Something like the date of the mental health assessment, or the first meeting, would be a good client information type.<br>
+
+{% if client_info_type_list %}
+	<br>
+	Here are the information types you have so far:<br>
+    <ul>
+    {% for cit in client_info_type_list %}
+        <li> {{ cit.title }} </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    You don't have any information types yet. Try making some below!<br>
+{% endif %}
+
+<h4> Add an Information Type </h4>
+
+<form action="/client_info_types/" method="post">
+{% csrf_token %}
+What is the name of this piece of information? 
+<input type="text" name="name" />
+<input type="submit" value="submit" />
+</form>
+
+Once you have a type of information or two, we can move on to the next step.<br>
+Time to <a href="/clients/">add in your clients!</a>

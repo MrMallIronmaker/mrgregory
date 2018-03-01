@@ -1,0 +1,32 @@
+Can you list off some of your clients? Of course, don't use their full names, or for right now, don't use names at all.<br>
+
+<h4> Client List </h4>
+
+{% if client_list %}
+	<br>
+	You've told me about these clients:<br>
+    <ul>
+    {% for client in client_list %}
+        <li> {{ client.name }} </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    You haven't told me about clients yet. You can use the form below!<br>
+{% endif %}
+
+<h4> Add a Client </h4>
+
+<form action="/clients/" method="post">
+{% csrf_token %}
+What is the name of this client? 
+<input type="text" name="name" /><br>
+
+{% for cit in client_info_type_list %}
+    {{cit.title}} : <input type="date" name="{{cit.title}}" /> <br>
+
+{% endfor %}
+
+<input type="submit" value="submit" />
+</form>
+
+Ok, once you have client or two, now it's time to set up the dreaded <a href="/deliverables/"> paperwork deliverables </a>.

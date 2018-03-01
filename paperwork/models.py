@@ -30,11 +30,15 @@ class Deliverable(models.Model):
     final = models.OneToOneField('FinalDeadline', on_delete=models.CASCADE)
 
 class Deadline(models.Model):
+    # each deadline has a name.
+    title = models.CharField(max_length=200)
+
     # all deadlines have a deliverable, but sometimes that's the reference of the
     # final table
 
     #TODO: fix this assumption?: each deadline has a time offset in days, we'll say
     offset = models.IntegerField()
+
 
 class FinalDeadline(Deadline):
     # a final deadline is relative to some type of Client Info
@@ -44,7 +48,7 @@ class FinalDeadline(Deadline):
 
 class StepDeadline(Deadline):
     # each deadline is part of a deliverable
-    deliverable = models.ForeignKey(Deliverable, on_delete=models.CASCADE)
+    deliverable = models.ForeignKey(Deliverable, on_delete=models.CASCADE, related_name="step_deadlines")
     # a step deadline is relative to some other deadline
     ancestor = models.ForeignKey(Deadline, on_delete=models.CASCADE, related_name="children")
 
@@ -53,4 +57,3 @@ class StepDeadline(Deadline):
 
 # for each client, for each deadline, there is a task.
 #class Tasks(models.Model):
-#    pass

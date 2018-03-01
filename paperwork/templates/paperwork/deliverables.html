@@ -1,0 +1,22 @@
+So now come the deliverables. These are the big deals, like mental health assessments.<br>
+
+<h4> Deliverable List </h4>
+
+{% if deliverable_list %}
+	<br>
+	I know about these deliverables:<br>
+    <ul>
+    {% for deliverable in deliverable_list %}
+        <li> <a href="/deliverable/{{deliverable.id}}/"> {{ deliverable.title }} </a> </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    You haven't told me about deliverables yet. You can create a new one with the link below.<br>
+{% endif %}
+<br>
+<a href="/new_deliverable/"> New Deliverable</a><br>
+<br>
+
+{% if deliverable_list %}
+	Now that you've got your clients, and your deliverables, you can <a href="/tasks/"> generate your tasks. </a>
+{% endif %}
