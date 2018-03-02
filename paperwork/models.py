@@ -8,9 +8,15 @@ class Client(models.Model):
     # every client has a name
     name = models.CharField(max_length=10)
 
+    def __str__(self):
+        return self.name
+
 class ClientInfoType(models.Model):
     # each information type has a name
     title = models.CharField(max_length=200) # e.g, "Last visit" or
+
+    def __str__(self):
+        return self.title
 
 class ClientInfo(models.Model):
     # each piece of information has a client it's referring to
@@ -18,9 +24,15 @@ class ClientInfo(models.Model):
     # and a type of information
     info_type = models.ForeignKey(ClientInfoType, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return "{0}'s {1}".format(self.client, self.info_type)
+
 class ClientInfoDate(ClientInfo):
     # sometimes that information has a date
     date = models.DateField()
+
+    def __str__(self):
+        return "{0} was {1}".format(self.clientInfo, self.date)
 
 # deliverable models
 class Deliverable(models.Model):
@@ -29,16 +41,18 @@ class Deliverable(models.Model):
     # all deliverables have a final deadline
     final = models.OneToOneField('FinalDeadline', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.title
+
 class Deadline(models.Model):
     # each deadline has a name.
     title = models.CharField(max_length=200)
 
-    # all deadlines have a deliverable, but sometimes that's the reference of the
-    # final table
-
     #TODO: fix this assumption?: each deadline has a time offset in days, we'll say
     offset = models.IntegerField()
 
+    def __str__(self):
+        return self.title
 
 class FinalDeadline(Deadline):
     # a final deadline is relative to some type of Client Info
