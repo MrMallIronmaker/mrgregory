@@ -32,7 +32,7 @@ class ClientInfoDate(ClientInfo):
     date = models.DateField()
 
     def __str__(self):
-        return "{0} was {1}".format(self.clientInfo, self.date)
+        return "{0} was {1}".format(self.clientInfo_ptr, self.date)
 
 # deliverable models
 class Deliverable(models.Model):
