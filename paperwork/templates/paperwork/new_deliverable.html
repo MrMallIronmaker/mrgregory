@@ -1,20 +1,66 @@
-A deliverable has a final deadline, with is measured in days from some date information that a client has. For example, an initial mental health assessment is due 30 days after the first session. In that case, the name is "initial mental health assessment" the spacing is "+30" (positive for after, negative for before) and the anchor is "the first session."
+<h3> Deliverables </h3>
+
+All these forms, assessments, and writeups have an orderly process that is 
+better fitting for computers than to people. When you explain this process once, 
+Mr Gregory will be able to calculate the dates for any new client that may need 
+it.<br>
+<br>
+
+For example, Billy is a new client and needs an initial mental health 
+assessment. You know that this is due 30 days after Billy's first session. You
+input this as:<br>
+<br>
+[Initial Mental Health Assessment] is due [30] [days] [after] the client's 
+[first session].<br>
+<br>
+Then, when Suzie comes along, Mr Gregory knows when an initial Mental Health 
+Assessment is due, and so scheduling that due date is as easy as telling Mr
+Gregory that Suzie needs an initial MHA.
+<br>
+
+<h4> Add a deliverable </h4>
+
+To start out, we'll add one.
+<br><br>
+
+<script>
+function anchorChanged() {
+	if (document.getElementById("anchorselect").value === "other") {
+		document.getElementById("otherdiv").style.display = 'block';
+	} else {
+		document.getElementById("otherdiv").style.display = 'none';
+	}
+}
+</script>
 
 <form action="/new_deliverable/" method="post">
 {% csrf_token %}
-What is the title of this deliverable? <input type="text" name="title" /><br>
-What is the title of the final deadline? <input type="text" name="deadline_title" /><br>
-What is the spacing of the final deadline? <input type="number" name="number" /><br>
-What is the anchor from which that time is measured?
+<input type="text" name="title" /> is due 
+<input type="number" name="number" />
 
-<select name="anchor">
+<select name="duration">
+	<option value="day">day(s)</option>
+	<!--option value="week">week(s)</option-->
+	<!--option value="month">month(s)</option-->
+</select>
+<select name="relation">
+	<option value="before">before</option>
+	<option value="after">after</option>
+</select>
+the client's
+<select name="anchor" id="anchorselect" onchange="anchorChanged()">
 {% for cit in client_info_type_list %}
     <option value="{{cit.id}}">{{cit.title}}</option>
 {% endfor %}
+	<option value="other">something I haven't told you about yet.</option>
 </select>
-<br>
-
+<div id="otherdiv" style="display:none">
+	Ah, gotcha. What event should I start to keep track of? <br>
+	<input type="text" name="otheranchor" />
+</div><br>
 <input type="submit" value="submit" />
 </form>
 
-You will be able to add more deadlines for this deliverable on the next page.
+<script type="text/javascript">
+	anchorChanged(); // if there isn't multiple options, the selection can't be changed.
+</script>

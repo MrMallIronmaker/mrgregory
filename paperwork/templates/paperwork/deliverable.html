@@ -1,16 +1,18 @@
+<h3> {{dl.title}} </h3>
 
-<br>
-<i> Hey, I'm going to be changing this to read something more conversational.</i><br>
-What is the title of this deliverable? {{dl.title}}<br>
-What is the spacing of the final deadline? {{dl.final.offset}}<br>
-What is the anchor from which that time is measured? {{dl.final.relative_info_type.title}}<br>
-<br>
+This deliverable is due {{dl.final.pretty_offset}} 
+the client's {{dl.final.relative_info_type.title}}.<br>
+
+You know that these deliverables have quite a few steps, and it's 
+important to keep pace with your responsibilities.
+
 {% if step_deadlines %}
 	<br>
 	I know about these other deadlines:<br>
     <ul>
     {% for step_deadline in step_deadlines %}
-        <li> {{step_deadline.title}} is due {{step_deadline.offset}} days after {{step_deadline.ancestor.title}} </li>
+        <li> {{step_deadline.title}} {{step_deadline.pretty_offset}}
+        you {{step_deadline.ancestor.title}} </li>
     {% endfor %}
     </ul>
 {% else %}
@@ -20,10 +22,19 @@ What is the anchor from which that time is measured? {{dl.final.relative_info_ty
 
 <form action="/deliverable/{{dl.id}}/" method="post">
 {% csrf_token %}
-What is the title of this deadline? <input type="text" name="title" /><br>
-What is the spacing of this deadline? <input type="number" name="number" /><br>
-What is the anchor from which that time is measured?
-
+I want to 
+<input type="text" name="title" placeholder="submit to my supervisor"/>
+<input type="number" name="number" placeholder="3" />
+<select name="duration">
+	<option value="day">day(s)</option>
+	<!--option value="week">week(s)</option-->
+	<!--option value="month">month(s)</option-->
+</select>
+<select name="relation">
+	<option value="before">before</option>
+	<option value="after">after</option>
+</select>
+I
 <select name="anchor">
 {% for deadline in deadlines %}
     <option value="{{deadline.deadline_ptr.id}}">{{deadline.title}}</option>
@@ -34,4 +45,5 @@ What is the anchor from which that time is measured?
 <input type="submit" value="submit" />
 </form>
 
-When you're finished adding deadlines, you can return to the <a href="/deliverables/"> deliverables </a>.
+When you're finished adding deadlines, you can return to the 
+<a href="/deliverables/">deliverables</a>.

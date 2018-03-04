@@ -11,10 +11,12 @@ from .models import ClientInfoType, Client, ClientInfoDate, Deliverable, \
 
 from datetime import timedelta
 
+import logic
+
 # Create your views here.
 
-def index(request):
-    return render(request, 'paperwork/index.html')
+def home(request):
+    return render(request, 'paperwork/home.html')
 
 def client_info_types(request):
 	# does the request have a post option?
@@ -57,17 +59,27 @@ def deliverables(request):
 
 def new_deliverable(request):
 	# if there's a POST, process it and redirect.
-	if all([i in request.POST for i in ["title", "anchor", "number", "deadline_title"]]):
-		cit = ClientInfoType.objects.get(id=request.POST["anchor"])
-		fd = FinalDeadline(
-			relative_info_type=cit, 
-			offset=request.POST["number"],
-			title=request.POST["deadline_title"]
-		)
-		fd.save()
-		deliverable = Deliverable(title=request.POST["title"], final=fd)
-		deliverable.save()
-		return HttpResponseRedirect(reverse('paperwork:deliverable', args=(deliverable.id,)))
+	if all([i in request.POST for i in ["title", "anchor", "number", "duration", "relation"]]):
+		# handle the case where I need to make a new client info type
+		cit = None
+		if (request.POST["anchor"] != "other"):
+			cit = ClientInfoType.objects.get(id=request.POST["anchor"])
+		else:
+			if request.POST["otheranchor"]:
+				cit = ClientInfoType(title=request.POST["otheranchor"])
+				cit.save()
+
+		if cit:
+			fd = FinalDeadline(
+				relative_info_type=cit, 
+				offset=logic.time_phrase(request.POST["number"], 
+					request.POST["duration"], request.POST["relation"]),
+				title=request.POST["title"]
+			)
+			fd.save()
+			deliverable = Deliverable(title=request.POST["title"], final=fd)
+			deliverable.save()
+			return HttpResponseRedirect(reverse('paperwork:deliverable', args=(deliverable.id,)))
 
 	# if there's no POST, then just go ahead and display the page.
 	return render(request, 'paperwork/new_deliverable.html', {
@@ -81,11 +93,12 @@ def view_deliverable(request, deliverable_id):
 	deadlines = [i for i in step_deadlines] + [deliverable.final]
 
 	# if valid POST:
-	if all([i in request.POST for i in ["title", "anchor", "number"]]):
+	if all([i in request.POST for i in ["title", "anchor", "number", "duration", "relation"]]):
 		step_deadline = StepDeadline(
 			deliverable=deliverable, 
 			ancestor=Deadline.objects.get(id=request.POST["anchor"]), 
-			offset=request.POST["number"], 
+			offset=logic.time_phrase(request.POST["number"], 
+				request.POST["duration"], request.POST["relation"]), 
 			title=request.POST["title"])
 		step_deadline.save()
 		deadlines += [step_deadline]

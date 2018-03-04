@@ -4,7 +4,7 @@ from . import views
 
 app_name = 'paperwork'
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.home, name='home'),
     url(r'^client_info_types/$', views.client_info_types),
     url(r'^clients/$', views.clients),
     url(r'^deliverables/$', views.deliverables),

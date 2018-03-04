@@ -55,6 +55,16 @@ class Deadline(models.Model):
     def __str__(self):
         return self.title
 
+    # TODO: dehardcode days
+    # TODO: singularize [day not days] when offset = 1
+    def pretty_offset(self):
+        if self.offset > 0:
+            return str(self.offset) + " days after"
+        elif self.offset < 0:
+            return str(-self.offset) + " days before"
+        else:
+            return "the same day as"
+
 class FinalDeadline(Deadline):
     # a final deadline is relative to some type of Client Info
     relative_info_type = models.ForeignKey(ClientInfoType, on_delete=models.CASCADE)
