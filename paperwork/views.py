@@ -7,7 +7,7 @@ from django.utils.dateparse import parse_date
 from django.urls import reverse
 
 from .models import ClientInfoType, Client, ClientInfoDate, Deliverable, \
-    Deadline, FinalDeadline, StepDeadline
+    Deadline, FinalDeadline, StepDeadline, Duration
 
 from datetime import timedelta
 
@@ -74,6 +74,7 @@ def new_deliverable(request):
 				relative_info_type=cit, 
 				offset=logic.time_phrase(request.POST["number"], 
 					request.POST["duration"], request.POST["relation"]),
+				duration=int(request.POST["duration"]),
 				title=request.POST["title"]
 			)
 			fd.save()
@@ -84,6 +85,7 @@ def new_deliverable(request):
 	# if there's no POST, then just go ahead and display the page.
 	return render(request, 'paperwork/new_deliverable.html', {
 		'client_info_type_list' : ClientInfoType.objects.all(),
+		'duration' : [d for d in Duration],
 	})
 
 def view_deliverable(request, deliverable_id):
@@ -91,6 +93,7 @@ def view_deliverable(request, deliverable_id):
 	deliverable = Deliverable.objects.get(id=deliverable_id)
 	step_deadlines = [i for i in deliverable.step_deadlines.all()]
 	deadlines = [i for i in step_deadlines] + [deliverable.final]
+	duration = [d for d in Duration]
 
 	# if valid POST:
 	if all([i in request.POST for i in ["title", "anchor", "number", "duration", "relation"]]):
@@ -99,6 +102,7 @@ def view_deliverable(request, deliverable_id):
 			ancestor=Deadline.objects.get(id=request.POST["anchor"]), 
 			offset=logic.time_phrase(request.POST["number"], 
 				request.POST["duration"], request.POST["relation"]), 
+			duration=int(request.POST["duration"]),
 			title=request.POST["title"])
 		step_deadline.save()
 		deadlines += [step_deadline]
@@ -108,6 +112,7 @@ def view_deliverable(request, deliverable_id):
 		"dl" : deliverable,
 		"step_deadlines" : step_deadlines,
 		"deadlines" : deadlines,
+		"duration" : duration
 	})
 
 def tasks(request):

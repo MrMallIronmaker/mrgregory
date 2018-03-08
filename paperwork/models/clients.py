@@ -15,6 +15,10 @@ class ClientInfoType(models.Model):
     def __str__(self):
         return self.title
 
+class ClientInfoTypeSignature(ClientInfoType):
+    # also include deliverable
+    deliverable = models.ForeignKey('Deliverable')
+
 class ClientInfo(models.Model):
     # each piece of information has a client it's referring to
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
@@ -26,8 +30,10 @@ class ClientInfo(models.Model):
 
 class ClientInfoDate(ClientInfo):
     # sometimes that information has a date
-    date = models.DateField()
+    date = models.DateField(null=True) # the date may not have happened yet
 
     def __str__(self):
-        print dir(self)
-        return "{0} was {1}".format(self.clientinfo_ptr, self.date)
+        if self.date:
+            return "{0} was {1}".format(self.clientinfo_ptr, self.date)
+        else:
+            return "{0} has not occurred".format(self.clientinfo_ptr)

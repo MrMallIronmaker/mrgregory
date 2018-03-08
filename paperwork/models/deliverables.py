@@ -2,13 +2,17 @@ from django.db import models
 from enum import Enum
 
 class Duration(Enum):
-    def __str__(self):
-        if self.value == 1:
+    @staticmethod
+    def pretty_print(index):
+        if index == 1:
             return "calendar day(s)"
-        elif self.value == 2:
+        elif index == 2:
             return "business day(s)"
         else:
             return "[unknown duration(s)]"
+
+    def __str__(self):
+        return self.pretty_print(self.value)
 
     calendar_day = 1
     business_day = 2
@@ -37,11 +41,13 @@ class Deadline(models.Model):
     # TODO: singularize [e.g, day not days] when offset = 1
     def pretty_offset(self):
         if self.offset > 0:
-            return str(self.offset) + " " + str(duration) + " after"
+            return str(self.offset) + " " + \
+                Duration.pretty_print(self.duration) + " after"
         elif self.offset < 0:
-            return str(-self.offset) + " " + str(duration) + " before"
+            return str(-self.offset) + " " + \
+                Duration.pretty_print(self.duration) + " before"
         else:
-            return "the same day as"
+            return "the same " + Duration.pretty_print(self.duration) + " as"
 
 class FinalDeadline(Deadline):
     # a final deadline is relative to some type of Client Info
