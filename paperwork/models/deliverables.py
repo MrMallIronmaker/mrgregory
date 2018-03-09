@@ -24,6 +24,7 @@ class Deliverable(models.Model):
     title = models.CharField(max_length=200)
     # all deliverables have a final deadline
     final = models.OneToOneField('FinalDeadline', on_delete=models.CASCADE)
+    review = models.OneToOneField('ReviewDeadline', null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.title
@@ -60,3 +61,6 @@ class StepDeadline(Deadline):
     deliverable = models.ForeignKey(Deliverable, on_delete=models.CASCADE, related_name="step_deadlines")
     # a step deadline is relative to some other deadline
     ancestor = models.ForeignKey(Deadline, on_delete=models.CASCADE, related_name="children")
+
+class ReviewDeadline(Deadline):
+    relative_info_type = models.ForeignKey('ClientInfoTypeSignature', on_delete=models.CASCADE)

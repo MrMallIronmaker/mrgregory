@@ -24,41 +24,64 @@ To start out, we'll add one.
 <br><br>
 
 <script>
-function anchorChanged() {
-	if (document.getElementById("anchorselect").value === "other") {
-		document.getElementById("otherdiv").style.display = 'block';
-	} else {
-		document.getElementById("otherdiv").style.display = 'none';
+	function anchorChanged() {
+		if (document.getElementById("anchorselect").value === "other") {
+			document.getElementById("otherdiv").style.display = 'block';
+		} else {
+			document.getElementById("otherdiv").style.display = 'none';
+		}
 	}
-}
+
+	function reviewChanged() {
+		if (document.getElementById("review").value === "1") {
+			document.getElementById("review_yes").style.display = 'inline';
+		} else {
+			document.getElementById("review_yes").style.display = 'none';
+		}
+	}
 </script>
 
 <form action="/new_deliverable/" method="post">
-{% csrf_token %}
-<input type="text" name="title" /> is due 
-<input type="number" name="number" />
+	{% csrf_token %}
+	<input type="text" name="title" /> is due 
+	<input type="number" name="number" />
 
-<select name="duration">
-{% for d in duration %}
-    <option value="{{d.value}}">{{d}}</option>
-{% endfor %}
-</select>
-<select name="relation">
-	<option value="before">before</option>
-	<option value="after">after</option>
-</select>
-the client's
-<select name="anchor" id="anchorselect" onchange="anchorChanged()">
-{% for cit in client_info_type_list %}
-    <option value="{{cit.id}}">{{cit.title}}</option>
-{% endfor %}
-	<option value="other">something I haven't told you about yet.</option>
-</select>
-<div id="otherdiv" style="display:none">
-	Ah, gotcha. What event should I start to keep track of? <br>
-	<input type="text" name="otheranchor" />
-</div><br>
-<input type="submit" value="submit" />
+	<select name="duration">
+		{% for d in duration %}
+		<option value="{{d.value}}">{{d}}</option>
+		{% endfor %}
+	</select>
+	<select name="relation">
+		<option value="before">before</option>
+		<option value="after">after</option>
+	</select>
+	the client's
+	<select name="anchor" id="anchorselect" onchange="anchorChanged()">
+		{% for cit in client_info_type_list %}
+		<option value="{{cit.id}}">{{cit.title}}</option>
+		{% endfor %}
+		<option value="other">something I haven't told you about yet.</option>
+	</select>
+	<div id="otherdiv" style="display:none">
+		Ah, gotcha. What event should I start to keep track of? <br>
+		<input type="text" name="otheranchor" />
+	</div><br>
+	and 
+	<select name="review" id="review" onchange="reviewChanged()">
+		<option value="1">needs</option>
+		<option value="0">does not need</option>
+	</select>
+	a review document 
+	<span id="review_yes"> every
+		<input type="number" name="review_offset" />
+		<select name="review_duration">
+			{% for d in duration %}
+			<option value="{{d.value}}">{{d}}</option>
+			{% endfor %}
+		</select>
+	</span>.
+	<br>
+	<input type="submit" value="submit" />
 </form>
 
 <script type="text/javascript">
