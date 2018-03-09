@@ -8,8 +8,9 @@ from django.http import HttpResponseRedirect
 from django.utils.dateparse import parse_date
 from django.urls import reverse
 
-from paperwork.models import ClientInfoType, Client, ClientInfoDate, Deliverable, \
-    Deadline, FinalDeadline, StepDeadline, Duration, ClientInfoTypeSignature, ReviewDeadline
+from paperwork.models import ClientInfoType, Client, ClientInfoDate, \
+    Deliverable, Deadline, FinalDeadline, StepDeadline, Duration, \
+    ClientInfoTypeSignature, ReviewDeadline, TaskStatus
 import paperwork.logic
 
 # Create your views here.
@@ -184,10 +185,30 @@ def tasks(request):
     })
 
 def dpc(request):
+    deliverables = [d for d in Deliverable.objects.all()]
+    clients = [c for c in Client.objects.all()]
+    # if it's a post, update the task statuses
     if request.method == "POST":
-        print request.POST
+        for client in clients:
+            for deliverable in deliverables:
+                task_status = None
+                try:
+                    task_status = TaskStatus.objects.get(client=client, deliverable=deliverable)
+                except TaskStatus.DoesNotExist:
+                    task_status = TaskStatus(
+                        client=client,
+                        deliverable=deliverable,
+                        needed=False)
+                id_string = "c" + str(client.id) + "-d" + str(deliverable.id)
+                task_status.needed = id_string in request.POST
+                task_status.save()
+
+    # produce the task_status dictionary:
+    # accessed like task_status[client][deliverable]
+    task_statuses = TaskStatus.objects.filter(needed=True)
 
     return render(request, 'paperwork/deliverables_per_client.html', {
-        "deliverables" : [d for d in Deliverable.objects.all()],
-        "clients" : [c for c in Client.objects.all()]
+        "deliverables" : deliverables,
+        "clients" : clients,
+        "task_statuses" : task_statuses,
     })
