@@ -7,7 +7,7 @@ from django.utils.dateparse import parse_date
 from django.urls import reverse
 
 from .models import ClientInfoType, Client, ClientInfoDate, Deliverable, \
-    Deadline, FinalDeadline, StepDeadline, Duration
+    Deadline, FinalDeadline, StepDeadline, Duration, ClientInfoTypeSignature
 
 from datetime import timedelta
 
@@ -80,6 +80,10 @@ def new_deliverable(request):
 			fd.save()
 			deliverable = Deliverable(title=request.POST["title"], final=fd)
 			deliverable.save()
+			#TODO: if the title of the deliverable changes, change the title of signature date item
+			citsig_title = "signature of " + request.POST["title"]
+			citsig = ClientInfoTypeSignature(deliverable=deliverable, title=citsig_title)
+			citsig.save()
 			return HttpResponseRedirect(reverse('paperwork:deliverable', args=(deliverable.id,)))
 
 	# if there's no POST, then just go ahead and display the page.
