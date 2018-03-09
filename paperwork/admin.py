@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.contrib import admin
 
 from .models import Client, ClientInfoType, ClientInfo, Deadline, \
-    Deliverable, FinalDeadline, StepDeadline, ClientInfoDate
+    Deliverable, FinalDeadline, StepDeadline, ClientInfoDate, TaskStatus
 
 # Register your models here.
 
@@ -16,3 +16,4 @@ admin.site.register(Deliverable)
 admin.site.register(FinalDeadline)
 admin.site.register(StepDeadline)
 admin.site.register(ClientInfoDate)
+admin.site.register(TaskStatus)
