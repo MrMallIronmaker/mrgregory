@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^new_deliverable/$', views.new_deliverable),
     url(r'^deliverable/(?P<deliverable_id>[0-9]+)/$', views.view_deliverable, name="deliverable"),
     url(r'^tasks/$', views.tasks),
+    url(r'^dpc/$', views.dpc),
 ]

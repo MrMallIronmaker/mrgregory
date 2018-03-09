@@ -182,3 +182,12 @@ def tasks(request):
     return render(request, 'paperwork/tasks.html', {
         "tasks" : task_strings
     })
+
+def dpc(request):
+    if request.method == "POST":
+        print request.POST
+
+    return render(request, 'paperwork/deliverables_per_client.html', {
+        "deliverables" : [d for d in Deliverable.objects.all()],
+        "clients" : [c for c in Client.objects.all()]
+    })

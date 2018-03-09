@@ -1,0 +1,23 @@
+Select the clients that have each particular deliverable.
+<form action="/dpc/" method="post">
+	{% csrf_token %}
+	<table>
+		<tr>
+			<th></th>
+			{% for client in clients %}
+			<th>{{client}}</th>
+			{% endfor %}
+		</tr>
+		{% for deliverable in deliverables %}
+		<tr>
+			<td>{{deliverable}}</td>
+			{% for client in clients %}
+				<td><input type="checkbox" 
+				name="c{{client.id}}-d{{deliverable.id}}">
+				</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</table>
+	<input type="submit" value="Submit" />
+</form>
