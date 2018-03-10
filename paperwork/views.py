@@ -7,6 +7,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.utils.dateparse import parse_date
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 
 from paperwork.models import ClientInfoType, Client, ClientInfoDate, \
     Deliverable, Deadline, FinalDeadline, StepDeadline, Duration, \
@@ -18,6 +20,31 @@ import paperwork.logic
 def home(request):
     return render(request, 'paperwork/home.html')
 
+def login_page(request):
+    if request.method == "POST":
+        # Auto login the user
+        username = request.POST["username"]
+        password = request.POST["password"]
+        a_u = authenticate(username=username, password=password)
+        if a_u is not None:
+            if a_u.is_active:
+                login(request, a_u)
+                next_url = '/'
+                if "next" in request.GET:
+                    next_url = request.GET["next"]
+                return HttpResponseRedirect(next_url)
+        else:
+            return HttpResponseRedirect('/login/')
+
+    next_url = '/'
+    if "next" in request.GET:
+        next_url = request.GET["next"]
+    return render(request, 'paperwork/login.html', {
+        "next" : next_url
+        })
+
+
+@login_required
 def client_info_types(request):
     # does the request have a post option?
     # if so, add it to the database.
@@ -30,6 +57,7 @@ def client_info_types(request):
         'client_info_type_list' : ClientInfoType.objects.all()
     })
 
+@login_required
 def clients(request):
     # does the request have a post option?
     # if so, add it to the database.
@@ -51,12 +79,14 @@ def clients(request):
         'client_list' : Client.objects.all(),
     })
 
+@login_required
 def deliverables(request):
 
     return render(request, 'paperwork/deliverables.html', {
         'deliverable_list' : Deliverable.objects.all()
     })
 
+@login_required
 def new_deliverable(request):
     # if there's a POST, process it and redirect.
     required_post_items = ["title", "anchor", "number", "duration", \
@@ -112,6 +142,7 @@ def new_deliverable(request):
         'duration' : [d for d in Duration],
     })
 
+@login_required
 def view_deliverable(request, deliverable_id):
     # setup
     deliverable = Deliverable.objects.get(id=deliverable_id)
@@ -141,6 +172,7 @@ def view_deliverable(request, deliverable_id):
         "duration" : duration
     })
 
+@login_required
 def tasks(request):
     # hack it out, mang.
     task_deadlines = {}
@@ -184,6 +216,7 @@ def tasks(request):
         "tasks" : task_strings
     })
 
+@login_required
 def dpc(request):
     deliverables = [d for d in Deliverable.objects.all()]
     clients = [c for c in Client.objects.all()]

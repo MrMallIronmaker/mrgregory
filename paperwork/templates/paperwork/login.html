@@ -1,0 +1,10 @@
+<h3> fake login </h3>
+
+<form id="login-form" method="post" 
+      action="/login/">
+    {% csrf_token %}
+    <input name="username" type="text" />
+    <input name="password" type="password" />
+    <input type="submit" value="Login" />
+    <input type="hidden" name="next" value="{{ next }}" />
+</form>
