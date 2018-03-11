@@ -1,10 +1,16 @@
+{% extends 'paperwork/base.html' %}
+
+{% block content %}
+
 <h3> {{dl.title}} </h3>
 
 This deliverable is due {{dl.final.pretty_offset}} 
 the client's {{dl.final.relative_info_type.title}}.<br>
-
-You know that these deliverables have quite a few steps, and it's 
-important to keep pace with your responsibilities.
+{% if dl.review %}
+    The reviews are due {{dl.review.pretty_offset}} the most recent signature.<br>
+{% else %}
+    This deliverable is not reviewed.<br>
+{% endif %}
 
 {% if step_deadlines %}
 	<br>
@@ -47,3 +53,4 @@ I
 
 When you're finished adding deadlines, you can return to the 
 <a href="/deliverables/">deliverables</a>.
+{% endblock %}

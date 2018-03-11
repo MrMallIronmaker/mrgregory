@@ -1,3 +1,7 @@
+{% extends 'paperwork/base.html' %}
+
+{% block content %}
+
 The last step! Now you can look at all the things you need to do.<br>
 <br>
 {% if tasks_by_dates %}
@@ -24,3 +28,5 @@ The last step! Now you can look at all the things you need to do.<br>
 {% endif %}
 <br>
 <a href="/" >Back to the beginning.</a>
+
+{% endblock %}

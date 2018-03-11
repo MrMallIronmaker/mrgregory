@@ -1,26 +1,12 @@
+{% extends 'paperwork/base.html' %}
+
+{% block content %}
+
 <h3> Deliverables </h3>
-
-All these forms, assessments, and writeups have an orderly process that is 
-better fitting for computers than to people. When you explain this process once, 
-Mr Gregory will be able to calculate the dates for any new client that may need 
-it.<br>
-<br>
-
-For example, Billy is a new client and needs an initial mental health 
-assessment. You know that this is due 30 days after Billy's first session. You
-input this as:<br>
-<br>
-[Initial Mental Health Assessment] is due [30] [days] [after] the client's 
-[first session].<br>
-<br>
-Then, when Suzie comes along, Mr Gregory knows when an initial Mental Health 
-Assessment is due, and so scheduling that due date is as easy as telling Mr
-Gregory that Suzie needs an initial MHA.
-<br>
 
 <h4> Add a deliverable </h4>
 
-To start out, we'll add one.
+To start out, add one deliverable.
 <br><br>
 
 <script>
@@ -87,3 +73,5 @@ To start out, we'll add one.
 <script type="text/javascript">
 	anchorChanged(); // if there isn't multiple options, the selection can't be changed.
 </script>
+
+{% endblock %}
