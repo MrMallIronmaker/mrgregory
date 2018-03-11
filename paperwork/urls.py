@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^deliverable/(?P<deliverable_id>[0-9]+)/$', views.view_deliverable, name="deliverable"),
     url(r'^tasks/$', views.tasks),
     url(r'^dpc/$', views.dpc),
-    url(r'^login/$', views.login_page)
+    url(r'^login/$', views.login_page),
+    url(r'^make_tasks/$', views.make_tasks)
 ]

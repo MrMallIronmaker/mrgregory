@@ -17,7 +17,7 @@ class ClientInfoType(models.Model):
 
 class ClientInfoTypeSignature(ClientInfoType):
     # also include deliverable
-    deliverable = models.ForeignKey('Deliverable')
+    deliverable = models.OneToOneField('Deliverable')
 
 class ClientInfo(models.Model):
     # each piece of information has a client it's referring to

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from datetime import timedelta
 
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.dateparse import parse_date
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -245,3 +245,8 @@ def dpc(request):
         "clients" : clients,
         "task_statuses" : task_statuses,
     })
+
+@login_required
+def make_tasks(request):
+    paperwork.logic.create_tasks()
+    return HttpResponse("Great!")
