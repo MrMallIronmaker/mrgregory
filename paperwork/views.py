@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from datetime import timedelta
+from itertools import groupby
 
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
@@ -12,7 +13,7 @@ from django.contrib.auth import authenticate, login
 
 from paperwork.models import ClientInfoType, Client, ClientInfoDate, \
     Deliverable, Deadline, FinalDeadline, StepDeadline, Duration, \
-    ClientInfoTypeSignature, ReviewDeadline, TaskStatus
+    ClientInfoTypeSignature, ReviewDeadline, TaskStatus, Task
 import paperwork.logic
 
 # Create your views here.
@@ -174,46 +175,24 @@ def view_deliverable(request, deliverable_id):
 
 @login_required
 def tasks(request):
-    # hack it out, mang.
-    task_deadlines = {}
-    task_strings = []
-    task_list = []
+    if request.method == "POST":
+        for key in request.POST:
+            if request.POST[key] == "on":
+                task = Task.objects.get(id=int(key))
+                task.completed = True
+                task.save()
 
-    # first begin with the final deadlines, and work backwards
-    for client in Client.objects.all():
-        for final_deadline in FinalDeadline.objects.all():
-            # you ready? here goes.
-            # get the info type entry
-            cit = final_deadline.relative_info_type
-            # get the info entry date
-            base_date = ClientInfoDate.objects.get(client=client, info_type=cit).date
-            # calculate the offset from the date
-            date = base_date + timedelta(final_deadline.offset)
-            task_deadlines[(client, final_deadline)] = date
-            task_strings.append("{0} for {1} due by {2}".format(
-                final_deadline.deliverable.title,
-                client.name,
-                date
-            ))
-            task_list += [(client, i, final_deadline) for i in final_deadline.children.all()]
-
-    while task_list:
-        # you got this
-        client, step_deadline, final_deadline = task_list.pop(0)
-        # so the previous thing has a date of what?
-        prev_date = task_deadlines[(client, step_deadline.ancestor)]
-        date = prev_date + timedelta(step_deadline.offset)
-        task_deadlines[(client, step_deadline)] = date
-        task_strings.append("{0} as part of {3} for {1} is due by {2}".format(
-            step_deadline.title,
-            client.name,
-            date,
-            final_deadline.deliverable.title
-        ))
-        task_list += [(client, i, final_deadline) for i in step_deadline.children.all()]
-
+    all_tasks = [t for t in Task.objects.all()]
+    get_date = lambda t: t.date
+    all_tasks.sort(key=get_date)
+    tasks_by_dates = []
+    for key, group in groupby(all_tasks, get_date):
+        tasks_by_dates.append({
+            "date": key,
+            "tasks": [t for t in group]
+            })
     return render(request, 'paperwork/tasks.html', {
-        "tasks" : task_strings
+        "tasks_by_dates" : tasks_by_dates
     })
 
 @login_required
@@ -249,4 +228,4 @@ def dpc(request):
 @login_required
 def make_tasks(request):
     paperwork.logic.create_tasks()
-    return HttpResponse("Great!")
+    return HttpResponseRedirect("/tasks/")

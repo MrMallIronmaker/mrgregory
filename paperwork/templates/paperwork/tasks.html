@@ -1,17 +1,26 @@
 The last step! Now you can look at all the things you need to do.<br>
 <br>
-Right now I have no filters for before / after the present day, or any fancy displays, or even recognizing what day of the week it is.<br>
-<br>
-{% if tasks %}
-	<br>
-	I know about these tasks:<br>
-    <ul>
-    {% for task in tasks %}
-        <li> {{task}} </li>
-    {% endfor %}
-    </ul>
+{% if tasks_by_dates %}
+	<form action="/tasks/" method="post">
+	{% csrf_token %}
+	{% for tasks_by_date in tasks_by_dates %}
+		<h4>{{tasks_by_date.date}}</h4>
+		<ul>
+			{% for task in tasks_by_date.tasks %}
+			<li>
+			<input type="checkbox" name="{{task.id}}"
+			{% if task.completed %}
+			    checked
+			{% endif %}>
+			{{task}}
+			</li>
+			{% endfor %}
+		</ul>
+	{% endfor %}
+	<input type="submit" value="submit" />
+	</form>
 {% else %}
-    No tasks!<br>
+    No tasks! Maybe you need to <a href="/make_tasks/">generate tasks</a>?
 {% endif %}
-
+<br>
 <a href="/" >Back to the beginning.</a>
