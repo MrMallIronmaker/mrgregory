@@ -11,10 +11,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 
-from paperwork.models import ClientInfoType, Client, ClientInfoDate, \
-    Deliverable, Deadline, FinalDeadline, StepDeadline, Duration, \
-    ClientInfoTypeSignature, ReviewDeadline, TaskStatus, Task
-import paperwork.logic
+from paperwork import logic
 
 # Create your views here.
 
@@ -51,11 +48,10 @@ def client_info_types(request):
     # if so, add it to the database.
     if "name" in request.POST:
         name = request.POST["name"]
-        cit = ClientInfoType(title=name)
-        cit.save()
+        logic.create_client_info_type(name=name)
 
     return render(request, 'paperwork/client_info_types.html', {
-        'client_info_type_list' : ClientInfoType.objects.all()
+        'client_info_type_list' : logic.all_client_info_types()
     })
 
 @login_required
@@ -64,27 +60,18 @@ def clients(request):
     # if so, add it to the database.
     if "name" in request.POST:
         name = request.POST["name"]
-
-        # ok, so make that client
-        client = Client(name=name)
-        client.save()
-
-        for cit in ClientInfoType.objects.all():
-            if cit.title in request.POST:
-                info = ClientInfoDate(client=client, info_type=cit,
-                                      date=parse_date(request.POST[cit.title]))
-                info.save()
+        logic.create_client(request.POST)
 
     return render(request, 'paperwork/clients.html', {
-        'client_info_type_list' : ClientInfoType.objects.all(),
-        'client_list' : Client.objects.all(),
+        'client_info_type_list' : logic.all_client_info_types(),
+        'client_list' : logic.all_clients(),
     })
 
 @login_required
 def deliverables(request):
 
     return render(request, 'paperwork/deliverables.html', {
-        'deliverable_list' : Deliverable.objects.all()
+        'deliverable_list' : logic.all_deliverables()
     })
 
 @login_required
@@ -93,54 +80,14 @@ def new_deliverable(request):
     required_post_items = ["title", "anchor", "number", "duration", \
     "relation", "review"]
     if all([i in request.POST for i in required_post_items]):
-        # handle the case where I need to make a new client info type
-        cit = None
-        if request.POST["anchor"] != "other":
-            cit = ClientInfoType.objects.get(id=request.POST["anchor"])
-        else:
-            if request.POST["otheranchor"]:
-                cit = ClientInfoType(title=request.POST["otheranchor"])
-                cit.save()
-
-        # handle the case in which I need to make a review item
-
-        if cit:
-            final_deadline = FinalDeadline(
-                relative_info_type=cit,
-                offset=paperwork.logic.time_phrase(
-                    request.POST["number"],
-                    request.POST["duration"],
-                    request.POST["relation"]),
-                duration=int(request.POST["duration"]),
-                title=request.POST["title"]
-            )
-            final_deadline.save()
-            deliverable = Deliverable(title=request.POST["title"], final=final_deadline)
-            deliverable.save()
-            citsig_title = "signature of " + request.POST["title"]
-            citsig = ClientInfoTypeSignature(deliverable=deliverable, title=citsig_title)
-            citsig.save()
-
-            review_items = ["review_offset", "review_duration"]
-            if request.POST["review"] == "1" and \
-                all([i in request.POST for i in review_items]):
-                review_deadline = ReviewDeadline(
-                    relative_info_type=citsig,
-                    offset=int(request.POST["review_offset"]),
-                    duration=int(request.POST["duration"]),
-                    title="review of " + request.POST["title"]
-                    )
-                review_deadline.save()
-                deliverable.review = review_deadline
-                deliverable.save()
-
-
+        deliverable = logic.create_deadline(request.POST)
+        if deliverable:
             return HttpResponseRedirect(reverse('paperwork:deliverable', args=(deliverable.id,)))
 
     # if there's no POST, then just go ahead and display the page.
     return render(request, 'paperwork/new_deliverable.html', {
-        'client_info_type_list' : ClientInfoType.objects.all(),
-        'duration' : [d for d in Duration],
+        'client_info_type_list' : logic.all_client_info_types(),
+        'duration' : logic.all_durations(),
     })
 
 @login_required
@@ -156,7 +103,7 @@ def view_deliverable(request, deliverable_id):
         step_deadline = StepDeadline(
             deliverable=deliverable,
             ancestor=Deadline.objects.get(id=request.POST["anchor"]),
-            offset=paperwork.logic.time_phrase(
+            offset=logic.time_phrase(
                 request.POST["number"],
                 request.POST["duration"],
                 request.POST["relation"]),
@@ -227,5 +174,5 @@ def dpc(request):
 
 @login_required
 def make_tasks(request):
-    paperwork.logic.create_tasks()
+    logic.create_tasks()
     return HttpResponseRedirect("/tasks/")
