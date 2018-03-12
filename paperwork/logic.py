@@ -49,8 +49,10 @@ def get_signature_date(client, citsig):
 		citsig = citsig.clientinfotype_ptr
 	except AttributeError:
 		pass
-
-	client_info = ClientInfo.objects.get(client=client, info_type=citsig)
+	try:
+		client_info = ClientInfo.objects.get(client=client, info_type=citsig)
+	except DoesNotExist:
+		return None
 	return client_info.clientinfodate.date
 
 def calculate_final_date(task_status):
