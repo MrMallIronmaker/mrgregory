@@ -1,8 +1,10 @@
 #from dateutil.relativedelta import relativedelta
-from models.deliverables import Duration
-from models.tasks import TaskStatus, Task
-from models.clients import ClientInfo
+import models.deliverables as mrgd
+import models.tasks as mrgt
+import models.clients as mrgc
 import datetime
+
+from django.utils.dateparse import parse_date
 
 def time_phrase(number, duration, relation):
     # assume duration is days
@@ -143,45 +145,47 @@ def create_tasks():
                 undated_items = True
 
 def create_client_info_type(name):
-    cit = ClientInfoType(title=name)
+    cit = mrgc.ClientInfoType(title=name)
     cit.save()
+    return cit
 
 def all_client_info_types():
-    return ClientInfoType.objects.all()
+    return mrgc.ClientInfoType.objects.all()
 
-def fill_client_info(post_dict):
-    for cit in ClientInfoType.objects.all():
+def fill_client_info(client, post_dict):
+    for cit in mrgc.ClientInfoType.objects.all():
         if cit.title in post_dict:
-            info = ClientInfoDate(client=client, info_type=cit,
+            info = mrgc.ClientInfoDate(client=client, info_type=cit,
                                   date=parse_date(post_dict[cit.title]))
             info.save()
 
 def create_client(post_dict):
-    client = Client(post_dict["name"])
+    client = mrgc.Client(name=post_dict["name"])
     client.save()
-    fill_client_info(post_dict)
+    fill_client_info(client, post_dict)
+    return client
 
 def all_clients():
-    return Client.objects.all()
+    return mrgc.Client.objects.all()
 
 def all_deliverables():
-    return Deliverable.objects.all()
+    return mrgd.Deliverable.objects.all()
 
 def create_deliverable(post_dict):
     # handle the case where I need to make a new client info type
     cit = None
     if post_dict["anchor"] != "other":
-        cit = ClientInfoType.objects.get(id=post_dict["anchor"])
+        cit = mrgc.ClientInfoType.objects.get(id=post_dict["anchor"])
     else:
         if post_dict["otheranchor"]:
-            cit = ClientInfoType(title=post_dict["otheranchor"])
+            cit = mrgc.ClientInfoType(title=post_dict["otheranchor"])
             cit.save()
 
     # handle the case in which I need to make a review item
     if cit is None:
         return None
 
-    final_deadline = FinalDeadline(
+    final_deadline = mrgd.FinalDeadline(
         relative_info_type=cit,
         offset=logic.time_phrase(
             post_dict["number"],
@@ -191,10 +195,10 @@ def create_deliverable(post_dict):
         title=post_dict["title"]
     )
     final_deadline.save()
-    deliverable = Deliverable(title=post_dict["title"], final=final_deadline)
+    deliverable = mrgd.Deliverable(title=post_dict["title"], final=final_deadline)
     deliverable.save()
     citsig_title = "signature of " + post_dict["title"]
-    citsig = ClientInfoTypeSignature(deliverable=deliverable, title=citsig_title)
+    citsig = mrgc.ClientInfoTypeSignature(deliverable=deliverable, title=citsig_title)
     citsig.save()
 
     review_items = ["review_offset", "review_duration"]
