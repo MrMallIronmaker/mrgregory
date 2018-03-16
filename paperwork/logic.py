@@ -167,7 +167,7 @@ def all_clients():
 def all_deliverables():
     return Deliverable.objects.all()
 
-def create_deadline(post_dict):
+def create_deliverable(post_dict):
     # handle the case where I need to make a new client info type
     cit = None
     if post_dict["anchor"] != "other":
@@ -214,3 +214,63 @@ def create_deadline(post_dict):
 
 def all_durations():
     return [d for d in Duration]
+
+def get_deliverable_by_id(deliverable_id):
+    return Deliverable.objects.get(deliverable_id)
+
+def get_step_deadlines_from(deliverable):
+    return [i for i in deliverable.step_deadlines.all()]
+
+def get_deadlines_from(deliverable):
+    return get_step_deadlines_from(deliverable) + [deliverable.final]
+
+def create_deadline(deliverable, post_dict):
+    step_deadline = StepDeadline(
+        deliverable=deliverable,
+        ancestor=Deadline.objects.get(id=post_dict["anchor"]),
+        offset=logic.time_phrase(
+            post_dict["number"],
+            post_dict["duration"],
+            post_dict["relation"]),
+        duration=int(post_dict["duration"]),
+        title=post_dict["title"])
+    step_deadline.save()
+
+def check_completed_tasks(post_dict):
+    for key in post_dict:
+        if post_dict[key] == "on":
+            task = Task.objects.get(id=int(key))
+            task.completed = True
+            task.save()
+
+def get_tasks_by_dates():
+    all_tasks = [t for t in Task.objects.all()]
+    get_date = lambda t: t.date
+    all_tasks.sort(key=get_date)
+    tasks_by_dates = []
+    for key, group in groupby(all_tasks, get_date):
+        tasks_by_dates.append({
+            "date": key,
+            "tasks": [t for t in group]
+            })
+
+def update_task_statuses(post_dict):
+    deliverables = all_deliverables()
+    clients = all_clients()
+
+    for client in clients:
+        for deliverable in deliverables:
+            task_status = None
+            try:
+                task_status = TaskStatus.objects.get(client=client, deliverable=deliverable)
+            except TaskStatus.DoesNotExist:
+                task_status = TaskStatus(
+                    client=client,
+                    deliverable=deliverable,
+                    needed=False)
+            id_string = "c" + str(client.id) + "-d" + str(deliverable.id)
+            task_status.needed = id_string in request.POST
+            task_status.save()
+
+def get_checked_task_statuses():
+    return TaskStatus.objects.filter(needed=True)

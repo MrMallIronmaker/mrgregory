@@ -80,7 +80,7 @@ def new_deliverable(request):
     required_post_items = ["title", "anchor", "number", "duration", \
     "relation", "review"]
     if all([i in request.POST for i in required_post_items]):
-        deliverable = logic.create_deadline(request.POST)
+        deliverable = logic.create_deliverable(request.POST)
         if deliverable:
             return HttpResponseRedirect(reverse('paperwork:deliverable', args=(deliverable.id,)))
 
@@ -93,82 +93,39 @@ def new_deliverable(request):
 @login_required
 def view_deliverable(request, deliverable_id):
     # setup
-    deliverable = Deliverable.objects.get(id=deliverable_id)
-    step_deadlines = [i for i in deliverable.step_deadlines.all()]
-    deadlines = [i for i in step_deadlines] + [deliverable.final]
-    duration = [d for d in Duration]
+    deliverable = logic.get_deliverable_by_id(deliverable_id)
 
     # if valid POST:
     if all([i in request.POST for i in ["title", "anchor", "number", "duration", "relation"]]):
-        step_deadline = StepDeadline(
-            deliverable=deliverable,
-            ancestor=Deadline.objects.get(id=request.POST["anchor"]),
-            offset=logic.time_phrase(
-                request.POST["number"],
-                request.POST["duration"],
-                request.POST["relation"]),
-            duration=int(request.POST["duration"]),
-            title=request.POST["title"])
-        step_deadline.save()
-        deadlines += [step_deadline]
-        step_deadlines += [step_deadline]
+        create_deadline(deliverable, request.POST)
 
     return render(request, 'paperwork/deliverable.html', {
         "dl" : deliverable,
-        "step_deadlines" : step_deadlines,
-        "deadlines" : deadlines,
-        "duration" : duration
+        "step_deadlines" : logic.get_step_deadlines_from(deliverable),
+        "deadlines" : logic.get_deadlines_from(deliverable),
+        "duration" : logic.all_durations()
     })
 
 @login_required
 def tasks(request):
     if request.method == "POST":
-        for key in request.POST:
-            if request.POST[key] == "on":
-                task = Task.objects.get(id=int(key))
-                task.completed = True
-                task.save()
+        logic.check_completed_tasks(request.POST)
 
-    all_tasks = [t for t in Task.objects.all()]
-    get_date = lambda t: t.date
-    all_tasks.sort(key=get_date)
-    tasks_by_dates = []
-    for key, group in groupby(all_tasks, get_date):
-        tasks_by_dates.append({
-            "date": key,
-            "tasks": [t for t in group]
-            })
+    tasks_by_dates = logic.get_tasks_by_dates()
     return render(request, 'paperwork/tasks.html', {
         "tasks_by_dates" : tasks_by_dates
     })
 
 @login_required
 def dpc(request):
-    deliverables = [d for d in Deliverable.objects.all()]
-    clients = [c for c in Client.objects.all()]
     # if it's a post, update the task statuses
     if request.method == "POST":
-        for client in clients:
-            for deliverable in deliverables:
-                task_status = None
-                try:
-                    task_status = TaskStatus.objects.get(client=client, deliverable=deliverable)
-                except TaskStatus.DoesNotExist:
-                    task_status = TaskStatus(
-                        client=client,
-                        deliverable=deliverable,
-                        needed=False)
-                id_string = "c" + str(client.id) + "-d" + str(deliverable.id)
-                task_status.needed = id_string in request.POST
-                task_status.save()
-
-    # produce the task_status dictionary:
-    # accessed like task_status[client][deliverable]
-    task_statuses = TaskStatus.objects.filter(needed=True)
+        update_task_statuses(request.POST)
+    task_statuses = logic.get_checked_task_statuses()
 
     return render(request, 'paperwork/deliverables_per_client.html', {
-        "deliverables" : deliverables,
-        "clients" : clients,
+        "deliverables" : logic.all_deliverables(),
+        "clients" : logic.all_clients(),
         "task_statuses" : task_statuses,
     })
 
