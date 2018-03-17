@@ -187,7 +187,7 @@ def create_deliverable(post_dict):
 
     final_deadline = mrgd.FinalDeadline(
         relative_info_type=cit,
-        offset=logic.time_phrase(
+        offset=time_phrase(
             post_dict["number"],
             post_dict["duration"],
             post_dict["relation"]),
