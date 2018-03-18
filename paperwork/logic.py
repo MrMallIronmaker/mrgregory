@@ -36,9 +36,9 @@ def calculate_business_day_offset(date, offset):
 
 
 def calculate_date(date, offset, duration):
-    if Duration(duration) == Duration.calendar_day:
+    if mrgd.Duration(duration) == mrgd.Duration.calendar_day:
         return calculate_calendar_day_offset(date, offset)
-    elif Duration(duration) == Duration.business_day:
+    elif mrgd.Duration(duration) == mrgd.Duration.business_day:
         return calculate_business_day_offset(date, offset)
     else:
         raise ValueError("Duration not implemented.")
@@ -52,8 +52,8 @@ def get_signature_date(client, citsig):
     except AttributeError:
         pass
     try:
-        client_info = ClientInfo.objects.get(client=client, info_type=citsig)
-    except DoesNotExist:
+        client_info = mrgc.ClientInfo.objects.get(client=client, info_type=citsig)
+    except mrgc.ClientInfo.DoesNotExist:
         return None
     return client_info.clientinfodate.date
 
@@ -88,7 +88,7 @@ def add_dates(task_status):
         root_date = calculate_final_date(task_status)
 
     # create the first task.
-    root_task = Task(
+    root_task = mrgt.Task(
         task_status=task_status,
         deadline=root_deadline,
         date=root_date,
@@ -106,14 +106,14 @@ def add_dates(task_status):
         ancestor = deadline.ancestor
         if ancestor == final_deadline and sig_date:
             ancestor = review_deadline
-        ancestor_task = Task.objects.get(
+        ancestor_task = mrgt.Task.objects.get(
             deadline=ancestor, 
             completed=False,
             task_status=task_status)
         # find date
         date = calculate_date_from_deadline(deadline, ancestor_task.date)
         # create task
-        task = Task(
+        task = mrgt.Task(
             task_status=task_status,
             deadline=deadline,
             date=date,
@@ -131,7 +131,7 @@ def create_tasks():
     dated_items = set({})
     while undated_items:
         undated_items = False
-        for task_status in TaskStatus.objects.all():
+        for task_status in mrgt.TaskStatus.objects.all():
             if not task_status.needed:
                 continue
             # if it's been dated
@@ -153,7 +153,7 @@ def all_client_info_types():
     return mrgc.ClientInfoType.objects.all()
 
 def fill_client_info(client, post_dict):
-    for cit in mrgc.ClientInfoType.objects.all():
+    for cit in all_client_info_types():
         if cit.title in post_dict:
             info = mrgc.ClientInfoDate(client=client, info_type=cit,
                                   date=parse_date(post_dict[cit.title]))
@@ -229,10 +229,10 @@ def get_deadlines_from(deliverable):
     return get_step_deadlines_from(deliverable) + [deliverable.final]
 
 def create_deadline(deliverable, post_dict):
-    step_deadline = StepDeadline(
+    step_deadline = mrgd.StepDeadline(
         deliverable=deliverable,
-        ancestor=Deadline.objects.get(id=post_dict["anchor"]),
-        offset=logic.time_phrase(
+        ancestor=mrgd.Deadline.objects.get(id=post_dict["anchor"]),
+        offset=time_phrase(
             post_dict["number"],
             post_dict["duration"],
             post_dict["relation"]),
@@ -266,15 +266,15 @@ def update_task_statuses(post_dict):
         for deliverable in deliverables:
             task_status = None
             try:
-                task_status = TaskStatus.objects.get(client=client, deliverable=deliverable)
-            except TaskStatus.DoesNotExist:
-                task_status = TaskStatus(
+                task_status = mrgt.TaskStatus.objects.get(client=client, deliverable=deliverable)
+            except mrgt.TaskStatus.DoesNotExist:
+                task_status = mrgt.TaskStatus(
                     client=client,
                     deliverable=deliverable,
                     needed=False)
             id_string = "c" + str(client.id) + "-d" + str(deliverable.id)
-            task_status.needed = id_string in request.POST
+            task_status.needed = id_string in post_dict
             task_status.save()
 
 def get_checked_task_statuses():
-    return TaskStatus.objects.filter(needed=True)
+    return mrgt.TaskStatus.objects.filter(needed=True)
