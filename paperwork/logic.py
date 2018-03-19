@@ -70,6 +70,22 @@ def get_signature_date_from_task_status(task_status):
     citsig = task_status.deliverable.clientinfotypesignature
     return get_signature_date(client, citsig)
 
+def update_task_date(task_status, deadline, date):
+    # it's important to leave the .completed as is
+    try:
+        task = mrgt.Task.objects.get(task_status=task_status, deadline=deadline)
+    except mrgt.Task.DoesNotExist:
+        task = mrgt.Task(
+            task_status=task_status,
+            deadline=deadline,
+            date=date,
+            completed=False)
+        task.save()
+    else:
+        task.date = date
+        task.save()
+    return task
+
 def add_dates(task_status):
     # Is it the final or the review?
     sig_date = get_signature_date_from_task_status(task_status)
@@ -92,12 +108,7 @@ def add_dates(task_status):
         root_date = calculate_final_date(task_status)
 
     # create the first task.
-    root_task = mrgt.Task(
-        task_status=task_status,
-        deadline=root_deadline,
-        date=root_date,
-        completed=False)
-    root_task.save()
+    update_task_date(task_status, root_deadline, root_date)
 
     # create list
     # right now, only the final has children
@@ -117,12 +128,7 @@ def add_dates(task_status):
         # find date
         date = calculate_date_from_deadline(deadline, ancestor_task.date)
         # create task
-        task = mrgt.Task(
-            task_status=task_status,
-            deadline=deadline,
-            date=date,
-            completed=False)
-        task.save()
+        update_task_date(task_status, deadline, date)
         deadlines += [d for d in deadline.children.all()]
 
 def is_dateable(task_status):
