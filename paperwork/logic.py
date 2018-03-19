@@ -1,13 +1,17 @@
-#from dateutil.relativedelta import relativedelta
-import models.deliverables as mrgd
-import models.tasks as mrgt
-import models.clients as mrgc
+"""
+scheduling and display logic. This is a middle layer between Models and Views.
+"""
 import datetime
 from itertools import groupby
 
 from django.utils.dateparse import parse_date
 
-def time_phrase(number, duration, relation):
+import paperwork.models.deliverables as mrgd
+import paperwork.models.tasks as mrgt
+import paperwork.models.clients as mrgc
+
+def time_phrase(number, _, relation):
+    """convert phrase to day offset"""
     # assume duration is days
     if relation == "after":
         direction = 1
@@ -96,7 +100,7 @@ def add_dates(task_status):
 
     # if there is a signature date,
     if sig_date:
-        # then use the review value, 
+        # then use the review value,
         # but also if it's got no review do nothing
         if review_deadline is None:
             return
@@ -122,7 +126,7 @@ def add_dates(task_status):
         if ancestor == final_deadline and sig_date:
             ancestor = review_deadline
         ancestor_task = mrgt.Task.objects.get(
-            deadline=ancestor, 
+            deadline=ancestor,
             completed=False,
             task_status=task_status)
         # find date
@@ -131,7 +135,7 @@ def add_dates(task_status):
         update_task_date(task_status, deadline, date)
         deadlines += [d for d in deadline.children.all()]
 
-def is_dateable(task_status):
+def is_dateable(_):
     #TODO: don't lie
     return True
 
@@ -166,7 +170,7 @@ def fill_client_info(client, post_dict):
     for cit in all_client_info_types():
         if cit.title in post_dict:
             info = mrgc.ClientInfoDate(client=client, info_type=cit,
-                                  date=parse_date(post_dict[cit.title]))
+                                       date=parse_date(post_dict[cit.title]))
             info.save()
 
 def create_client(post_dict):
@@ -253,7 +257,7 @@ def create_deadline(deliverable, post_dict):
 def check_completed_tasks(post_dict):
     for key in post_dict:
         if post_dict[key] == "on":
-            task = Task.objects.get(id=int(key))
+            task = mrgt.Task.objects.get(id=int(key))
             task.completed = True
             task.save()
 

@@ -1,3 +1,8 @@
+"""
+Urls take the URLS from the http request and convert them to function calls
+in the Views module.
+"""
+
 from django.conf.urls import url
 
 from . import views

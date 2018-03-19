@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
+"""
+Paperwork views. This module handles individual django.requests that
+represent HTTP requests. It mostly makes calls to modules in logic.
+"""
 from __future__ import unicode_literals
 
-from datetime import timedelta
-
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
@@ -57,7 +58,6 @@ def clients(request):
     # does the request have a post option?
     # if so, add it to the database.
     if "name" in request.POST:
-        name = request.POST["name"]
         logic.create_client(request.POST)
 
     return render(request, 'paperwork/clients.html', {
@@ -128,6 +128,6 @@ def dpc(request):
     })
 
 @login_required
-def make_tasks(request):
+def make_tasks(_):
     logic.create_tasks()
     return HttpResponseRedirect("/tasks/")
