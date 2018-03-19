@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from datetime import timedelta
-from itertools import groupby
 
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
@@ -96,7 +95,7 @@ def view_deliverable(request, deliverable_id):
 
     # if valid POST:
     if all([i in request.POST for i in ["title", "anchor", "number", "duration", "relation"]]):
-        create_deadline(deliverable, request.POST)
+        logic.create_deadline(deliverable, request.POST)
 
     return render(request, 'paperwork/deliverable.html', {
         "dl" : deliverable,
@@ -119,7 +118,7 @@ def tasks(request):
 def dpc(request):
     # if it's a post, update the task statuses
     if request.method == "POST":
-        update_task_statuses(request.POST)
+        logic.update_task_statuses(request.POST)
     task_statuses = logic.get_checked_task_statuses()
 
     return render(request, 'paperwork/deliverables_per_client.html', {

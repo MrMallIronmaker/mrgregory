@@ -3,6 +3,7 @@ import models.deliverables as mrgd
 import models.tasks as mrgt
 import models.clients as mrgc
 import datetime
+from itertools import groupby
 
 from django.utils.dateparse import parse_date
 
@@ -79,7 +80,10 @@ def add_dates(task_status):
 
     # if there is a signature date,
     if sig_date:
-        # then use the review value
+        # then use the review value, 
+        # but also if it's got no review do nothing
+        if review_deadline is None:
+            return
         root_deadline = review_deadline
         root_date = calculate_date_from_deadline(review_deadline, sig_date)
     else:
@@ -204,7 +208,7 @@ def create_deliverable(post_dict):
     review_items = ["review_offset", "review_duration"]
     if post_dict["review"] == "1" and \
         all([i in post_dict for i in review_items]):
-        review_deadline = ReviewDeadline(
+        review_deadline = mrgd.ReviewDeadline(
             relative_info_type=citsig,
             offset=int(post_dict["review_offset"]),
             duration=int(post_dict["duration"]),
@@ -217,10 +221,10 @@ def create_deliverable(post_dict):
     return deliverable
 
 def all_durations():
-    return [d for d in Duration]
+    return [d for d in mrgd.Duration]
 
 def get_deliverable_by_id(deliverable_id):
-    return Deliverable.objects.get(deliverable_id)
+    return mrgd.Deliverable.objects.get(id=deliverable_id)
 
 def get_step_deadlines_from(deliverable):
     return [i for i in deliverable.step_deadlines.all()]
@@ -248,7 +252,7 @@ def check_completed_tasks(post_dict):
             task.save()
 
 def get_tasks_by_dates():
-    all_tasks = [t for t in Task.objects.all()]
+    all_tasks = [t for t in mrgt.Task.objects.all()]
     get_date = lambda t: t.date
     all_tasks.sort(key=get_date)
     tasks_by_dates = []
@@ -257,6 +261,7 @@ def get_tasks_by_dates():
             "date": key,
             "tasks": [t for t in group]
             })
+    return tasks_by_dates
 
 def update_task_statuses(post_dict):
     deliverables = all_deliverables()
