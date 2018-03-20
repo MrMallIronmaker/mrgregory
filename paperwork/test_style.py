@@ -17,6 +17,20 @@ def mkdir_p(path):
 PYTHON_EXTENSION = '.py'
 PYLINT_OUT = "./paperwork/pylint_out"
 IGNORE_DIRS = ["./paperwork/migrations", PYLINT_OUT]
+EXTRA_OPTIONS = " ".join([
+    # need an empty string for that leading space.
+    "", 
+
+    # first, Django's subclassing of Models, etc. give lotsa errors.
+    # Make Pylint smart about django.
+    "--load-plugins pylint_django",
+
+    "--max-line-length=80", # be rigorous in line length
+
+    # test names are OK long because they aren't called in code.
+    "--method-rgx (([a-z_][a-z0-9_]{2,30})|" + 
+    "((test|assert)_[a-z_][a-z0-9_]{2,50}))$",
+])
 
 class StyleTestCase(TestCase):
     def test_run(self):
@@ -45,7 +59,7 @@ class StyleTestCase(TestCase):
             mkdir_p(os.path.join(PYLINT_OUT, root))
             target_filename = os.path.join(root, name)
             (pylint_stdout, _) = lint.py_run(
-                target_filename + " --load-plugins pylint_django",
+                target_filename + EXTRA_OPTIONS,
                 return_std=True)
 
             output_filename = target_filename[:-len(PYTHON_EXTENSION)] + '.txt'
