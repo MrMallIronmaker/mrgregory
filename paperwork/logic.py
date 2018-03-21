@@ -283,12 +283,6 @@ def check_completed_tasks(post_dict):
                 cid.date = datetime.date.today()
                 cid.save()
 
-                cid = mrgc.ClientInfoDate.objects.get(
-                    client=client, info_type=cit)
-                info = mrgc.ClientInfo.objects.get(
-                    client=client, info_type=cit)
-
-
                 # delete all old tasks, they all refer to task_status
                 mrgt.Task.objects.filter(task_status=task_status).delete()
 

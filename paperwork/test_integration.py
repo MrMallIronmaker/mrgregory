@@ -329,4 +329,3 @@ class IntegrationTestCase(TestCase):
         test_task = get_review_test_task() # grab the object again
         target_date = datetime.date.today() + datetime.timedelta(days=90)
         self.assertEqual(target_date, test_task.date)
-
