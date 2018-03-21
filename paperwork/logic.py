@@ -62,6 +62,7 @@ def get_signature_date(client, citsig):
         return None
     return client_info.clientinfodate.date
 
+
 def calculate_final_date(task_status):
     final_deadline = task_status.deliverable.final
     client = task_status.client
@@ -195,7 +196,6 @@ def create_deliverable(post_dict):
             cit = mrgc.ClientInfoType(title=post_dict["otheranchor"])
             cit.save()
 
-    # handle the case in which I need to make a review item
     if cit is None:
         return None
 
@@ -209,7 +209,9 @@ def create_deliverable(post_dict):
         title=post_dict["title"]
     )
     final_deadline.save()
-    deliverable = mrgd.Deliverable(title=post_dict["title"], final=final_deadline)
+    deliverable = mrgd.Deliverable(
+        title=post_dict["title"], 
+        final=final_deadline)
     deliverable.save()
     citsig_title = "signature of " + post_dict["title"]
     citsig = mrgc.ClientInfoTypeSignature(deliverable=deliverable, title=citsig_title)
@@ -255,11 +257,47 @@ def create_deadline(deliverable, post_dict):
     step_deadline.save()
 
 def check_completed_tasks(post_dict):
+    """ 
+    take the list of completed tasks and complete them,
+    and if necessary, update the signature date.
+    """
     for key in post_dict:
         if post_dict[key] == "on":
             task = mrgt.Task.objects.get(id=int(key))
-            task.completed = True
-            task.save()
+
+            if hasattr(task.deadline, "finaldeadline") or \
+                hasattr(task.deadline, "reviewdeadline"):
+                # update signature date
+                task_status = task.task_status
+                client = task_status.client
+                deliverable = task.deadline.finaldeadline.deliverable
+                cits = deliverable.clientinfotypesignature
+                cit = cits.clientinfotype_ptr
+                try:
+                    client_info = mrgc.ClientInfo.objects.get(
+                        client=client, info_type=cit)
+                    cid = client_info.clientinfodate
+                except mrgc.ClientInfo.DoesNotExist:
+                    cid = mrgc.ClientInfoDate(client=client,
+                        info_type=cit, date=None)
+                cid.date = datetime.date.today()
+                cid.save()
+
+                cid = mrgc.ClientInfoDate.objects.get(
+                    client=client, info_type=cit)
+                info = mrgc.ClientInfo.objects.get(
+                    client=client, info_type=cit)
+
+
+                # delete all old tasks, they all refer to task_status
+                mrgt.Task.objects.filter(task_status=task_status).delete()
+
+                # request those tasks be built again
+                add_dates(task_status)
+
+            else:
+                task.completed = True
+                task.save()
 
 def get_tasks_by_dates():
     all_tasks = [t for t in mrgt.Task.objects.all()]
@@ -281,7 +319,8 @@ def update_task_statuses(post_dict):
         for deliverable in deliverables:
             task_status = None
             try:
-                task_status = mrgt.TaskStatus.objects.get(client=client, deliverable=deliverable)
+                task_status = mrgt.TaskStatus.objects.get(
+                    client=client, deliverable=deliverable)
             except mrgt.TaskStatus.DoesNotExist:
                 task_status = mrgt.TaskStatus(
                     client=client,

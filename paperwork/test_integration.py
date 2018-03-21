@@ -57,7 +57,7 @@ def create_deliverable():
         "title" : MHA_TITLE,
         "review_offset" : 90,
         "review_duration" : deliverables.Duration.calendar_day.value,
-        "review" : 1
+        "review" : "1"
         })
 
 def get_test_deliverable():
@@ -129,6 +129,20 @@ def create_multiple_clients():
         CIT_TITLE : other_start_date_string
         })
 
+def get_review_test_task():
+    deliverable = get_test_deliverable()
+    task_status = get_test_task_status()
+    return tasks.Task.objects.get(
+        task_status=task_status,
+        deadline=deliverable.review.deadline_ptr)
+
+def get_test_task():
+    deliverable = get_test_deliverable()
+    task_status = get_test_task_status()
+    return tasks.Task.objects.get(
+        task_status=task_status,
+        deadline=deliverable.final.deadline_ptr)
+
 class IntegrationTestCase(TestCase):
     """
     This class follows through on a simple integration test of everything.
@@ -158,6 +172,8 @@ class IntegrationTestCase(TestCase):
         dlvs_filter = deliverables.Deliverable.objects.filter(title=MHA_TITLE)
         self.assertEqual(len(dlvs_filter), 1)
         self.assertEqual(dlvs_filter[0].title, MHA_TITLE)
+        self.assertIsNotNone(dlvs_filter[0].final)
+        self.assertIsNotNone(dlvs_filter[0].review)
 
     def test_create_deadline(self):
         create_deadline()
@@ -295,3 +311,22 @@ class IntegrationTestCase(TestCase):
 
         self.assert_date_of_test_task()
         self.assert_date_of_other_client_test_task()
+
+    def test_submit_of_signature_moves_date(self):
+        """
+        When the final task is marked as completed, it should reset all the
+        corresponding tasks and change the date of the review task.
+        """
+        # setup
+        set_task_status()
+        logic.create_tasks()
+
+        # "checkbox" for the task with a review.
+        test_task = get_test_task()
+        logic.check_completed_tasks({str(test_task.id) : "on"})
+
+        # assert afterwards
+        test_task = get_review_test_task() # grab the object again
+        target_date = datetime.date.today() + datetime.timedelta(days=90)
+        self.assertEqual(target_date, test_task.date)
+
