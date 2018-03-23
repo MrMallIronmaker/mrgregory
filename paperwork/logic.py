@@ -270,7 +270,7 @@ def check_completed_tasks(post_dict):
                 # update signature date
                 task_status = task.task_status
                 client = task_status.client
-                deliverable = task.deadline.finaldeadline.deliverable
+                deliverable = task.deadline.deliverable
                 cits = deliverable.clientinfotypesignature
                 cit = cits.clientinfotype_ptr
                 try:

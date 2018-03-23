@@ -71,6 +71,17 @@ class Deadline(models.Model):
                 Duration.pretty_print(self.duration) + " before"
         return "the same " + Duration.pretty_print(self.duration) + " as"
 
+    @property
+    def deliverable(self):
+        if hasattr(self, "stepdeadline"):
+            return self.stepdeadline.deliverable
+        elif hasattr(self, "finaldeadline"):
+            return self.finaldeadline.deliverable
+        elif hasattr(self, "reviewdeadline"):
+            return self.reviewdeadline.deliverable
+        else:
+            raise TypeError("Deadline does not have a deliverable???")
+
 class FinalDeadline(Deadline):
     """ the last deadline, where everything is due."""
     # a final deadline is relative to some type of Client Info
