@@ -167,17 +167,46 @@ def create_client_info_type(name):
 def all_client_info_types():
     return mrgc.ClientInfoType.objects.all()
 
-def fill_client_info(client, post_dict):
+def safe_fill_client_info(client, post_dict):
+    """
+    It's a safe fill because it first attempts to update, and if it can't,
+    then it creates.
+    """
     for cit in all_client_info_types():
         if cit.title in post_dict:
-            info = mrgc.ClientInfoDate(client=client, info_type=cit,
-                                       date=parse_date(post_dict[cit.title]))
+            try:
+                info = mrgc.ClientInfoDate.objects.get(
+                    client=client,
+                    info_type=cit)
+                info.date=parse_date(post_dict[cit.title])
+            except mrgc.ClientInfoDate.DoesNotExist:
+                info = mrgc.ClientInfoDate(
+                    client=client, 
+                    info_type=cit,
+                    date=parse_date(post_dict[cit.title]))
             info.save()
 
 def create_client(post_dict):
     client = mrgc.Client(name=post_dict["name"])
     client.save()
-    fill_client_info(client, post_dict)
+    safe_fill_client_info(client, post_dict)
+    return client
+
+def get_client_by_id(client_id):
+    return mrgc.Client.objects.get(id=client_id)
+
+def get_client_info_from(client):
+    infos = mrgc.ClientInfo.objects.filter(client=client)
+    result = {}
+    for info in infos:
+        result[info.info_type.title] = info.pretty_print()
+    return result
+
+def update_client(post_dict):
+    client = mrgc.Client(id=post_dict["id"])
+    client.name = post_dict["name"]
+    client.save()
+    safe_fill_client_info(client, post_dict)
     return client
 
 def all_clients():

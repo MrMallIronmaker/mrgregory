@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from paperwork import logic
+import paperwork.logic as logic
 
 @login_required
 def client_info_types(request):
@@ -31,3 +31,18 @@ def view_clients(request):
         'client_info_type_list' : logic.all_client_info_types(),
         'client_list' : logic.all_clients(),
     })
+
+@login_required
+def view_client(request, client_id):
+    """
+    Displays the information of a particular client.
+    """
+    if "id" in request.POST:
+        logic.update_client(request.POST)
+
+    client = logic.get_client_by_id(int(client_id))
+
+    return render(request, 'paperwork/client.html', {
+        'client' : client,
+        'client_infos' : logic.get_client_info_from(client)
+        })

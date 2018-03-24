@@ -44,6 +44,12 @@ class ClientInfo(models.Model):
     def __unicode__(self):
         return self.__str__()
 
+    def pretty_print(self):
+        if hasattr(self, "clientinfodate"):
+            return self.clientinfodate.pretty_print()
+        else:
+            raise TypeError("ClientInfo must have a subclass.")
+
 class ClientInfoDate(ClientInfo):
     """ sometimes that information has a date """
     date = models.DateField(null=True) # the date may not have happened yet
@@ -54,3 +60,9 @@ class ClientInfoDate(ClientInfo):
         return "{0} has not occurred".format(self.clientinfo_ptr)
     def __unicode__(self):
         return self.__str__()
+
+    def pretty_print(self):
+        if self.date:
+            return self.date.strftime("%Y-%m-%d")
+
+        return ""

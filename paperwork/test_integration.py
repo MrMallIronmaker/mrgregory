@@ -15,6 +15,7 @@ CIT_TITLE = "initial appointment"
 
 CLIENT_NAME = "JD"
 START_DATE = datetime.date(2018, 3, 5)
+UPDATE_START_DATE = datetime.date(2018, 3, 7)
 
 OTHER_CLIENT_NAME = "QZ"
 OTHER_START_DATE = datetime.date(2018, 3, 19)
@@ -142,6 +143,18 @@ def get_test_task():
     return tasks.Task.objects.get(
         task_status=task_status,
         deadline=deliverable.final.deadline_ptr)
+
+def update_client():
+    """
+    Does the logic module update the client correctly?
+    Note: this assumes the test client and test deliverable are created.
+    """
+    test_client = get_test_client()
+    logic.update_client({
+        "id" : test_client.id,
+        "name" : CLIENT_NAME,
+        CIT_TITLE : UPDATE_START_DATE.strftime("%Y-%m-%d")
+        })
 
 class IntegrationTestCase(TestCase):
     """
@@ -329,3 +342,32 @@ class IntegrationTestCase(TestCase):
         test_task = get_review_test_task() # grab the object again
         target_date = datetime.date.today() + datetime.timedelta(days=90)
         self.assertEqual(target_date, test_task.date)
+
+    def test_update_client(self):
+        # setup
+        create_deliverable()
+        create_client()
+        update_client()
+
+        # access data
+        test_client = get_test_client()
+        cit = clients.ClientInfoType.objects.get(title=CIT_TITLE)
+        info = clients.ClientInfo.objects.get(
+            client=test_client,
+            info_type=cit)
+
+        # verify data
+        self.assertTrue(hasattr(info, "clientinfodate"))
+        self.assertNotEqual(info.clientinfodate.date, START_DATE)
+        self.assertEqual(info.clientinfodate.date, UPDATE_START_DATE)
+
+    def test_get_client_info_from(self):
+        create_deliverable()
+        create_client()
+        test_client = get_test_client()
+
+        # compare against:
+        target_client_infos = {CIT_TITLE : START_DATE.strftime("%Y-%m-%d")}
+
+        client_infos = logic.get_client_info_from(test_client)
+        self.assertEqual(target_client_infos, client_infos)

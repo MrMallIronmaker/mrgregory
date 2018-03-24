@@ -19,5 +19,7 @@ urlpatterns = [
     url(r'^tasks/$', views.view_tasks),
     url(r'^dpc/$', views.dpc),
     url(r'^login/$', views.login_page),
-    url(r'^make_tasks/$', views.make_tasks)
+    url(r'^make_tasks/$', views.make_tasks),
+    url(r'^client/(?P<client_id>[0-9]+)/$',
+        views.view_client, name="client"),
 ]

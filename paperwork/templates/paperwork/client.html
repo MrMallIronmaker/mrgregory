@@ -1,0 +1,21 @@
+{% extends 'paperwork/base.html' %}
+
+{% block content %}
+
+<h4> Client Info </h4>
+
+<form action="/client/{{client.id}}/" method="post">
+{% csrf_token %}
+Client's name: 
+<input type="number" name="id" value={{client.id}} hidden="true"/>
+<input type="text" name="name" value="{{client.name}}"/><br>
+
+{% for cit_title, info in client_infos.items %}
+    Date of {{cit_title}}: <input type="date" name="{{cit_title}}" value="{{info}}"/> <br>
+{% endfor %}
+
+<input type="submit" value="update" />
+</form>
+
+<a href="/clients/">Return to clients listing.</a>
+{% endblock %}
