@@ -285,6 +285,18 @@ def create_deadline(deliverable, post_dict):
         title=post_dict["title"])
     step_deadline.save()
 
+def update_deadline(deadline_id, post_dict):
+    step_deadline = mrgd.StepDeadline.objects.get(id=deadline_id)
+    # deliverable doesn't change.
+    step_deadline.ancestor = mrgd.Deadline.objects.get(id=post_dict["anchor"])
+    step_deadline.offset = time_phrase(
+        post_dict["number"],
+        post_dict["duration"],
+        post_dict["relation"])
+    step_deadline.duration = int(post_dict["duration"])
+    step_deadline.title = post_dict["title"]
+    step_deadline.save()
+
 def check_completed_tasks(post_dict):
     """ 
     take the list of completed tasks and complete them,

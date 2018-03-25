@@ -43,14 +43,36 @@ def view_deliverable(request, deliverable_id):
         "duration" : logic.all_durations()
     })
 
+@login_required
 def new_deadline(request, deliverable_id):
     # setup
     deliverable = logic.get_deliverable_by_id(deliverable_id)
 
     # if valid POST:
     deadline_reqs = ["title", "anchor", "number", "duration", "relation"]
-    if all([i in request.POST for i in deadline_reqs]):
-        logic.create_deadline(deliverable, request.POST)
+    if all(["nd-" + i in request.POST for i in deadline_reqs]):
+        useful_dict = {}
+        for name in deadline_reqs:
+            useful_dict[name] = request.POST["nd-" + name]
+        logic.create_deadline(deliverable, useful_dict)
 
     return HttpResponseRedirect(reverse('paperwork:deliverable',
-                        args=(deliverable.id,)))
+                                        args=(deliverable.id,)))
+
+@login_required
+def edit_deadline(request, deliverable_id, deadline_id):
+
+    deliverable = logic.get_deliverable_by_id(deliverable_id)
+
+    deadline_reqs = ["title", "anchor", "number", "duration", "relation"]
+
+    prefix = "sd-" + str(deadline_id) + "-"
+
+    if all([prefix + i in request.POST for i in deadline_reqs]):
+        useful_dict = {}
+        for name in deadline_reqs:
+            useful_dict[name] = request.POST[prefix + name]
+        logic.update_deadline(int(deadline_id), useful_dict)
+
+    return HttpResponseRedirect(reverse('paperwork:deliverable',
+                                        args=(deliverable.id,)))

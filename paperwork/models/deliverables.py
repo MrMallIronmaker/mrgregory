@@ -61,7 +61,7 @@ class Deadline(models.Model):
         return self.__str__()
 
     # TODO: singularize [e.g, day not days] when offset = 1
-    def pretty_offset(self):
+    def english_offset(self):
         """ convert deadline information to human-readable"""
         if self.offset > 0:
             return str(self.offset) + " " + \
@@ -81,6 +81,9 @@ class Deadline(models.Model):
             return self.reviewdeadline.deliverable
         else:
             raise TypeError("Deadline does not have a deliverable???")
+
+    def abs_offset(self):
+        return abs(self.offset)
 
 class FinalDeadline(Deadline):
     """ the last deadline, where everything is due."""
