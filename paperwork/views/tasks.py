@@ -40,7 +40,6 @@ def complete_task(request, task_id):
 
 @login_required
 def uncomplete_task(request, task_id):
-    # TODO: refactor in this with complete_task
     if request.method == "POST":
         print request.POST
         logic.update_completed_tasks({
