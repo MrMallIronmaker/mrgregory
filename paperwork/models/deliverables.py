@@ -99,7 +99,7 @@ class FinalDeadline(Deadline):
         on_delete=models.CASCADE)
     # TODO: don't cascade, instead create an error.
     def __unicode__(self):
-        return super.__str__()
+        return super(FinalDeadline, self).__str__()
 
 class StepDeadline(Deadline):
     """ deadlines that refer to other deadlines """
@@ -114,7 +114,7 @@ class StepDeadline(Deadline):
         on_delete=models.CASCADE,
         related_name="children")
     def __unicode__(self):
-        return super.__str__()
+        return super(StepDeadline, self).__str__()
 
 class ReviewDeadline(Deadline):
     """ Deadline for the nth time around """
@@ -122,4 +122,4 @@ class ReviewDeadline(Deadline):
         'ClientInfoTypeSignature',
         on_delete=models.CASCADE)
     def __unicode__(self):
-        return super.__str__()
+        return super(ReviewDeadline, self).__str__()
