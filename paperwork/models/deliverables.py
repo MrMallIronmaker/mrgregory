@@ -85,6 +85,12 @@ class Deadline(models.Model):
     def abs_offset(self):
         return abs(self.offset)
 
+    def is_before(self):
+        return self.offset < 0
+
+    def is_after(self):
+        return self.offset > 0
+
 class FinalDeadline(Deadline):
     """ the last deadline, where everything is due."""
     # a final deadline is relative to some type of Client Info

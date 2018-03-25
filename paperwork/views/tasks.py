@@ -15,6 +15,7 @@ def view_tasks(request):
     if request.method == "POST":
         logic.check_completed_tasks(request.POST)
 
+    logic.create_tasks()
     tasks_by_dates = logic.get_tasks_by_dates()
     return render(request, 'paperwork/tasks.html', {
         "tasks_by_dates" : tasks_by_dates

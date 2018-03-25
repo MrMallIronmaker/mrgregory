@@ -1,0 +1,103 @@
+{% extends 'paperwork/base.html' %}
+
+{% block content %}
+
+<h3> Deliverables </h3>
+
+<script>
+	function anchorChanged() {
+		if (document.getElementById("anchorselect").value === "other") {
+			document.getElementById("otherdiv").style.display = 'block';
+		} else {
+			document.getElementById("otherdiv").style.display = 'none';
+		}
+	}
+
+	function reviewChanged() {
+		if (document.getElementById("review").value === "1") {
+			document.getElementById("review_yes").style.display = 'inline';
+		} else {
+			document.getElementById("review_yes").style.display = 'none';
+		}
+	}
+</script>
+
+<form action="/edit_deliverable/{{dl.id}}/" method="post">
+	{% csrf_token %}
+	<input type="text" name="title" value="{{final.title}}" /> is due 
+	<input type="number" name="number" value="{{final.abs_offset}}"/>
+
+	<select name="duration">
+        {% for d in duration %}
+            <option value="{{d.value}}"
+                {% if d.value == final.duration %} 
+                    selected="selected" 
+                {% endif %}
+            >{{d}}</option>
+        {% endfor %}
+        </select>
+	<select name="relation">
+            <option value="before"
+                {% if final.is_before %} 
+                    selected="selected" 
+                {% endif %}
+            >before</option>
+            <option value="after" 
+                {% if final.is_after %}
+                    selected="selected" 
+                {% endif %} 
+            >after</option>
+        </select>
+	the client's
+	<select name="anchor" id="anchorselect" onchange="anchorChanged()">
+		{% for cit in client_info_type_list %}
+		<option value="{{cit.id}}"
+			{% if cit.id == final.relative_info_type.id%}
+				selected="selected" 
+			{% endif %}
+		>{{cit.title}}</option>
+		{% endfor %}
+		<option value="other">something I haven't told you about yet.</option>
+	</select>
+	<div id="otherdiv" style="display:none">
+		Ah, gotcha. What event should I start to keep track of? <br>
+		<input type="text" name="otheranchor" />
+	</div><br>
+	and 
+	<select name="review" id="review" onchange="reviewChanged()">
+		<option value="1"
+			{% if review %}
+				selected="selected" 
+			{% endif %}
+		>needs</option>
+		<option value="0"
+			{% if not review %}
+				selected="selected" 
+			{% endif %}
+		>does not need</option>
+	</select>
+	a review document 
+	<span id="review_yes"> every
+		<input type="number" name="review_offset"
+		value="{% if review %}{{review.abs_offset}}{% endif %}"
+		/>
+		<select name="review_duration">
+			{% for d in duration %}
+				<option value="{{d.value}}" 
+					{% if review and d.value == review.duration %} 
+	                    selected="selected" 
+	                {% endif %}
+	            >{{d}}</option>
+			{% endfor %}
+		</select>
+		from the most recent signature date
+	</span>.
+	<br>
+	<input type="submit" value="submit" />
+</form>
+
+<script type="text/javascript">
+	anchorChanged(); // if there isn't multiple options, the selection can't be changed.
+</script>
+
+{% endblock %}

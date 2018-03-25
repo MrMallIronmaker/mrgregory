@@ -252,13 +252,56 @@ def create_deliverable(post_dict):
         review_deadline = mrgd.ReviewDeadline(
             relative_info_type=citsig,
             offset=int(post_dict["review_offset"]),
-            duration=int(post_dict["duration"]),
+            duration=int(post_dict["review_duration"]),
             title="review of " + post_dict["title"]
             )
         review_deadline.save()
         deliverable.review = review_deadline
         deliverable.save()
 
+    return deliverable
+
+def update_deliverable(deliverable, post_dict):
+    # handle the case where I need to make a new client info type
+    cit = mrgc.ClientInfoType.objects.get(id=post_dict["anchor"])
+
+    final_deadline = deliverable.final
+    final_deadline.relative_info_type = cit
+    final_deadline.offset = time_phrase(
+        post_dict["number"],
+        post_dict["duration"],
+        post_dict["relation"])
+    final_deadline.duration = int(post_dict["duration"])
+    final_deadline.title = post_dict["title"]
+    final_deadline.save()
+
+    deliverable.title = post_dict["title"]
+    deliverable.save()
+
+    citsig_title = "signature of " + post_dict["title"]
+    citsig = mrgc.ClientInfoTypeSignature.objects.get(deliverable=deliverable)
+    citsig.title = citsig_title
+    citsig.save()
+
+    if post_dict["review"] == "1":
+        if deliverable.review:
+            review = deliverable.review
+        else:
+            review = mrgd.ReviewDeadline(deliverable=deliverable)
+        review.relative_info_type = citsig
+        review.offset=int(post_dict["review_offset"])
+        review.duration=int(post_dict["review_duration"])
+        review.title="review of " + post_dict["title"]
+        review.save()
+        if deliverable.review:
+            deliverable.review = review
+            deliverable.save()
+
+    elif post_dict["review"] == "0":
+        if deliverable.review:
+            deliverable.review.delete()
+            deliverable.review = None
+            deliverable.save()
     return deliverable
 
 def all_durations():

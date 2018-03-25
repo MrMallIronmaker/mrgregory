@@ -76,3 +76,26 @@ def edit_deadline(request, deliverable_id, deadline_id):
 
     return HttpResponseRedirect(reverse('paperwork:deliverable',
                                         args=(deliverable.id,)))
+
+@login_required
+def edit_deliverable(request, deliverable_id):
+    # if there's a POST, process it and redirect.
+    deliverable = logic.get_deliverable_by_id(deliverable_id)
+
+    required_post_items = ["title", "anchor", "number", "duration", \
+    "relation", "review"]
+    if all([i in request.POST for i in required_post_items]):
+        deliverable = logic.update_deliverable(deliverable, request.POST)
+        if deliverable:
+            return HttpResponseRedirect(
+                reverse('paperwork:deliverable',
+                        args=(deliverable.id,)))
+
+    # if there's no POST, then just go ahead and display the page.
+    return render(request, 'paperwork/edit_deliverable.html', {
+        'client_info_type_list' : logic.all_client_info_types(),
+        'duration' : logic.all_durations(),
+        'final' : deliverable.final,
+        'dl' : deliverable,
+        'review' : deliverable.review,
+    })

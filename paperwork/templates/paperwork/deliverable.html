@@ -7,10 +7,13 @@
 This deliverable is due {{dl.final.english_offset}} 
 the client's {{dl.final.relative_info_type.title}}.<br>
 {% if dl.review %}
-    The reviews are due {{dl.review.pretty_offset}} the most recent signature.<br>
+    The reviews are due {{dl.review.english_offset}} the most recent signature.<br>
 {% else %}
     This deliverable is not reviewed.<br>
 {% endif %}
+<br>
+<br><a href="/edit_deliverable/{{dl.id}}/">Edit</a>
+<br>
 
 {% if step_deadlines %}
 	<br>
