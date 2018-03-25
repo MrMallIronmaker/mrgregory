@@ -36,14 +36,21 @@ def view_deliverable(request, deliverable_id):
     # setup
     deliverable = logic.get_deliverable_by_id(deliverable_id)
 
-    # if valid POST:
-    deadline_reqs = ["title", "anchor", "number", "duration", "relation"]
-    if all([i in request.POST for i in deadline_reqs]):
-        logic.create_deadline(deliverable, request.POST)
-
     return render(request, 'paperwork/deliverable.html', {
         "dl" : deliverable,
         "step_deadlines" : logic.get_step_deadlines_from(deliverable),
         "deadlines" : logic.get_deadlines_from(deliverable),
         "duration" : logic.all_durations()
     })
+
+def new_deadline(request, deliverable_id):
+    # setup
+    deliverable = logic.get_deliverable_by_id(deliverable_id)
+
+    # if valid POST:
+    deadline_reqs = ["title", "anchor", "number", "duration", "relation"]
+    if all([i in request.POST for i in deadline_reqs]):
+        logic.create_deadline(deliverable, request.POST)
+
+    return HttpResponseRedirect(reverse('paperwork:deliverable',
+                        args=(deliverable.id,)))

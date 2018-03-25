@@ -26,7 +26,7 @@ the client's {{dl.final.relative_info_type.title}}.<br>
 {% endif %}
 <br>
 
-<form action="/deliverable/{{dl.id}}/" method="post">
+<form action="/deliverable/{{dl.id}}/new_deadline/" method="post">
 {% csrf_token %}
 I want to 
 <input type="text" name="title" placeholder="submit to my supervisor"/>
