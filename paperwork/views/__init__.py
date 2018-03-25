@@ -8,5 +8,6 @@ from paperwork.views.clients import client_info_types, view_clients, \
 from paperwork.views.deliverables import view_deliverables, \
     new_deliverable, view_deliverable, new_deadline, edit_deadline, \
     edit_deliverable
-from paperwork.views.tasks import view_tasks, dpc, make_tasks
+from paperwork.views.tasks import view_tasks, dpc, make_tasks, complete_task, \
+    completed_tasks, uncomplete_task
 from paperwork.views.server import home, login_page

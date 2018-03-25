@@ -12,14 +12,42 @@ from paperwork import logic
 
 @login_required
 def view_tasks(request):
-    if request.method == "POST":
-        logic.check_completed_tasks(request.POST)
-
     logic.create_tasks()
     tasks_by_dates = logic.get_tasks_by_dates()
     return render(request, 'paperwork/tasks.html', {
-        "tasks_by_dates" : tasks_by_dates
+        "tasks_by_dates" : tasks_by_dates,
+        "other_link" : "/completed_tasks/"
     })
+
+@login_required
+def completed_tasks(request):
+    logic.create_tasks()
+    tasks_by_dates = logic.get_completed_tasks_by_dates()
+    return render(request, 'paperwork/tasks.html', {
+        "tasks_by_dates" : tasks_by_dates,
+        "other_link" : "/tasks/"
+    })
+
+@login_required
+def complete_task(request, task_id):
+    if request.method == "POST":
+        print request.POST
+        logic.update_completed_tasks({
+            "completed" : int(task_id)
+            })
+
+    return HttpResponseRedirect(request.POST["from"])
+
+@login_required
+def uncomplete_task(request, task_id):
+    # TODO: refactor in this with complete_task
+    if request.method == "POST":
+        print request.POST
+        logic.update_completed_tasks({
+            "uncompleted" : int(task_id)
+            })
+
+    return HttpResponseRedirect(request.POST["from"])
 
 @login_required
 def dpc(request):

@@ -336,7 +336,7 @@ class IntegrationTestCase(TestCase):
 
         # "checkbox" for the task with a review.
         test_task = get_test_task()
-        logic.check_completed_tasks({str(test_task.id) : "on"})
+        logic.update_completed_tasks({"completed" : str(test_task.id)})
 
         # assert afterwards
         test_task = get_review_test_task() # grab the object again

@@ -128,7 +128,6 @@ def add_dates(task_status):
             ancestor = review_deadline
         ancestor_task = mrgt.Task.objects.get(
             deadline=ancestor,
-            completed=False,
             task_status=task_status)
         # find date
         date = calculate_date_from_deadline(deadline, ancestor_task.date)
@@ -141,6 +140,7 @@ def is_dateable(_):
     return True
 
 def create_tasks():
+    #TODO: this method should have a different name
     #TODO: I need better names for these variables
     undated_items = True
     dated_items = set({})
@@ -340,45 +340,60 @@ def update_deadline(deadline_id, post_dict):
     step_deadline.title = post_dict["title"]
     step_deadline.save()
 
-def check_completed_tasks(post_dict):
+def update_completed_tasks(post_dict):
     """ 
-    take the list of completed tasks and complete them,
+    take a completed / uncompleted tasks and update
     and if necessary, update the signature date.
     """
-    for key in post_dict:
-        if post_dict[key] == "on":
-            task = mrgt.Task.objects.get(id=int(key))
+    if "completed" in post_dict:
+        task = mrgt.Task.objects.get(id=int(post_dict["completed"]))
 
-            if hasattr(task.deadline, "finaldeadline") or \
-                hasattr(task.deadline, "reviewdeadline"):
-                # update signature date
-                task_status = task.task_status
-                client = task_status.client
-                deliverable = task.deadline.deliverable
-                cits = deliverable.clientinfotypesignature
-                cit = cits.clientinfotype_ptr
-                try:
-                    client_info = mrgc.ClientInfo.objects.get(
-                        client=client, info_type=cit)
-                    cid = client_info.clientinfodate
-                except mrgc.ClientInfo.DoesNotExist:
-                    cid = mrgc.ClientInfoDate(client=client,
-                        info_type=cit, date=None)
-                cid.date = datetime.date.today()
-                cid.save()
+        # TODO: refactor out this block of code
+        if hasattr(task.deadline, "finaldeadline") or \
+            hasattr(task.deadline, "reviewdeadline"):
+            # update signature date
+            task_status = task.task_status
+            client = task_status.client
+            deliverable = task.deadline.deliverable
+            cits = deliverable.clientinfotypesignature
+            cit = cits.clientinfotype_ptr
+            try:
+                client_info = mrgc.ClientInfo.objects.get(
+                    client=client, info_type=cit)
+                cid = client_info.clientinfodate
+            except mrgc.ClientInfo.DoesNotExist:
+                cid = mrgc.ClientInfoDate(client=client,
+                    info_type=cit, date=None)
+            cid.date = datetime.date.today()
+            cid.save()
 
-                # delete all old tasks, they all refer to task_status
-                mrgt.Task.objects.filter(task_status=task_status).delete()
+            # delete all old tasks, they all refer to task_status
+            mrgt.Task.objects.filter(task_status=task_status).delete()
 
-                # request those tasks be built again
-                add_dates(task_status)
+            # request those tasks be built again
+            add_dates(task_status)
 
-            else:
-                task.completed = True
-                task.save()
+        else:
+            task.completed = True
+            task.save()
+
+    if "uncompleted" in post_dict:
+        task = mrgt.Task.objects.get(id=int(post_dict["uncompleted"]))
+        task.completed = False
+        task.save()
 
 def get_tasks_by_dates():
-    all_tasks = [t for t in mrgt.Task.objects.all()]
+    all_tasks = [t for t in mrgt.Task.objects.filter(completed=False)]
+    return group_tasks_by_dates(all_tasks)
+
+def get_completed_tasks_by_dates():
+    all_tasks = [t for t in mrgt.Task.objects.filter(completed=True)]
+    grouped_tasks = group_tasks_by_dates(all_tasks)
+    # show most recently completed stuff at the top
+    grouped_tasks.reverse()
+    return grouped_tasks
+
+def group_tasks_by_dates(all_tasks):
     get_date = lambda t: t.date
     all_tasks.sort(key=get_date)
     tasks_by_dates = []
