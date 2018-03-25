@@ -1,5 +1,8 @@
+# Django files
 venv
 *.pyc
 staticfiles
 .env
 db.sqlite3
+
+*/pylint_out/

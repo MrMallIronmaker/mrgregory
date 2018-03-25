@@ -4,21 +4,63 @@
 
 <h3> {{dl.title}} </h3>
 
-This deliverable is due {{dl.final.pretty_offset}} 
+This deliverable is due {{dl.final.english_offset}} 
 the client's {{dl.final.relative_info_type.title}}.<br>
 {% if dl.review %}
-    The reviews are due {{dl.review.pretty_offset}} the most recent signature.<br>
+    The reviews are due {{dl.review.english_offset}} the most recent signature.<br>
 {% else %}
     This deliverable is not reviewed.<br>
 {% endif %}
+<br>
+<br><a href="/edit_deliverable/{{dl.id}}/">Edit</a>
+<br>
 
 {% if step_deadlines %}
 	<br>
 	I know about these other deadlines:<br>
     <ul>
     {% for step_deadline in step_deadlines %}
-        <li> {{step_deadline.title}} {{step_deadline.pretty_offset}}
-        you {{step_deadline.ancestor.title}} </li>
+        <li> 
+        <form action="/deliverable/{{dl.id}}/edit_deadline/{{step_deadline.id}}/" method="post">
+            {% csrf_token %}
+            <!-- let's do. This should be a form thing.
+            It may make sense to add a few object methods. -->
+            <input type="text" name="sd-{{step_deadline.id}}-title" value="{{step_deadline.title}}"/>
+            <input type="number" name="sd-{{step_deadline.id}}-number" value="{{step_deadline.abs_offset}}" />
+            <select name="sd-{{step_deadline.id}}-duration">
+            {% for d in duration %}
+                <option value="{{d.value}}"
+                    {% if d.value == step_deadline.duration %} 
+                        selected="selected" 
+                    {% endif %}
+                >{{d}}</option>
+            {% endfor %}
+            </select>
+            <select name="sd-{{step_deadline.id}}-relation">
+                <option value="before"
+                    {% if step_deadline.is_before %} 
+                        selected="selected" 
+                    {% endif %}
+                >before</option>
+                <option value="after" 
+                    {% if step_deadline.is_after %}
+                        selected="selected" 
+                    {% endif %} 
+                >after</option>
+            </select>
+            you
+            <select name="sd-{{step_deadline.id}}-anchor">
+            {% for deadline in deadlines %}
+                <option value="{{deadline.deadline_ptr.id}}" 
+                    {% if deadline.deadline_ptr.id == step_deadline.ancestor.id %} 
+                    selected="selected" {% endif %}
+                    > {{deadline.title}}</option>
+            {% endfor %}
+            </select>
+            <input type="submit" value="save edits" />
+        </form>
+
+        </li>
     {% endfor %}
     </ul>
 {% else %}
@@ -26,22 +68,22 @@ the client's {{dl.final.relative_info_type.title}}.<br>
 {% endif %}
 <br>
 
-<form action="/deliverable/{{dl.id}}/" method="post">
+<form action="/deliverable/{{dl.id}}/new_deadline/" method="post">
 {% csrf_token %}
 I want to 
-<input type="text" name="title" placeholder="submit to my supervisor"/>
-<input type="number" name="number" placeholder="3" />
-<select name="duration">
+<input type="text" name="nd-title" placeholder="submit to my supervisor"/>
+<input type="number" name="nd-number" placeholder="3" />
+<select name="nd-duration">
 {% for d in duration %}
     <option value="{{d.value}}">{{d}}</option>
 {% endfor %}
 </select>
-<select name="relation">
+<select name="nd-relation">
 	<option value="before">before</option>
 	<option value="after">after</option>
 </select>
 I
-<select name="anchor">
+<select name="nd-anchor">
 {% for deadline in deadlines %}
     <option value="{{deadline.deadline_ptr.id}}">{{deadline.title}}</option>
 {% endfor %}
@@ -50,6 +92,7 @@ I
 
 <input type="submit" value="submit" />
 </form>
+<br>
 
 When you're finished adding deadlines, you can return to the 
 <a href="/deliverables/">deliverables</a>.

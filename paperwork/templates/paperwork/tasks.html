@@ -1,21 +1,21 @@
 {% extends 'paperwork/base.html' %}
 
 {% block content %}
-
-The last step! Now you can look at all the things you need to do.<br>
+<br> <a href="{{other_link}}"> Swap between <i>done</i> and <i>to do</i>. </a>
 <br>
 {% if tasks_by_dates %}
-	<form action="/tasks/" method="post">
-	{% csrf_token %}
 	{% for tasks_by_date in tasks_by_dates %}
 		<h4>{{tasks_by_date.date}}</h4>
 		<ul>
 			{% for task in tasks_by_date.tasks %}
 			<li>
-			<input type="checkbox" name="{{task.id}}"
-			{% if task.completed %}
-			    checked
-			{% endif %}>
+			<form method="post" 
+			action="/tasks/{% if task.completed %}uncomplete{% else %}complete{% endif %}/{{task.id}}/" style="display:inline;">
+				{% csrf_token %}
+				<input type="text" name="from" hidden="true" value="{{request.path}}">
+			    <button type="submit">{% if task.completed %}un-complete{% else %}complete{% endif %}</button>
+			</form>
+
 			{{task}}
 			</li>
 			{% endfor %}
@@ -27,6 +27,8 @@ The last step! Now you can look at all the things you need to do.<br>
     No tasks! Maybe you need to <a href="/make_tasks/">generate tasks</a>?
 {% endif %}
 <br>
+<br>
+
 <a href="/" >Back to the beginning.</a>
 
 {% endblock %}

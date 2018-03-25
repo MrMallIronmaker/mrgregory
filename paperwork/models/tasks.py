@@ -1,6 +1,11 @@
+"""
+Models for the Tasks that are generated. 
+Depends on Clients and Deliverables.
+"""
 from django.db import models
 
 class TaskStatus(models.Model):
+    """ Does little Jimmy need a Columbia Impairment Scale? """
     # each task needs a client
     client = models.ForeignKey('Client', on_delete=models.CASCADE)
     # and a deliverable
@@ -10,11 +15,15 @@ class TaskStatus(models.Model):
 
     def __str__(self):
         return "{0} {1} {2}".format(
-        	self.client,
-        	["does not need", "needs"][int(self.needed)],
-        	self.deliverable)
+        	   self.client,
+        	   ["does not need", "needs"][int(self.needed)],
+        	   self.deliverable)
+
+    def __unicode__(self):
+        return self.__str__()
 
 class Task(models.Model):
+    """ When do I need to get little Jimmy's MHA to my supervisor? """
     # refer to a test_status
     task_status = models.ForeignKey('TaskStatus', on_delete=models.CASCADE)
     # what deadline it refers to
@@ -31,3 +40,6 @@ class Task(models.Model):
             self.task_status.deliverable,
             self.date,
             ["", " (completed)"][int(self.completed)])
+
+    def __unicode__(self):
+        return self.__str__()

@@ -4,11 +4,6 @@
 
 <h3> Deliverables </h3>
 
-<h4> Add a deliverable </h4>
-
-To start out, add one deliverable.
-<br><br>
-
 <script>
 	function anchorChanged() {
 		if (document.getElementById("anchorselect").value === "other") {
@@ -27,24 +22,40 @@ To start out, add one deliverable.
 	}
 </script>
 
-<form action="/new_deliverable/" method="post">
+<form action="/edit_deliverable/{{dl.id}}/" method="post">
 	{% csrf_token %}
-	<input type="text" name="title" /> is due 
-	<input type="number" name="number" />
+	<input type="text" name="title" value="{{final.title}}" /> is due 
+	<input type="number" name="number" value="{{final.abs_offset}}"/>
 
 	<select name="duration">
-		{% for d in duration %}
-		<option value="{{d.value}}">{{d}}</option>
-		{% endfor %}
-	</select>
+        {% for d in duration %}
+            <option value="{{d.value}}"
+                {% if d.value == final.duration %} 
+                    selected="selected" 
+                {% endif %}
+            >{{d}}</option>
+        {% endfor %}
+        </select>
 	<select name="relation">
-		<option value="before">before</option>
-		<option value="after">after</option>
-	</select>
+            <option value="before"
+                {% if final.is_before %} 
+                    selected="selected" 
+                {% endif %}
+            >before</option>
+            <option value="after" 
+                {% if final.is_after %}
+                    selected="selected" 
+                {% endif %} 
+            >after</option>
+        </select>
 	the client's
 	<select name="anchor" id="anchorselect" onchange="anchorChanged()">
 		{% for cit in client_info_type_list %}
-		<option value="{{cit.id}}">{{cit.title}}</option>
+		<option value="{{cit.id}}"
+			{% if cit.id == final.relative_info_type.id%}
+				selected="selected" 
+			{% endif %}
+		>{{cit.title}}</option>
 		{% endfor %}
 		<option value="other">something I haven't told you about yet.</option>
 	</select>
@@ -54,15 +65,29 @@ To start out, add one deliverable.
 	</div><br>
 	and 
 	<select name="review" id="review" onchange="reviewChanged()">
-		<option value="1">needs</option>
-		<option value="0">does not need</option>
+		<option value="1"
+			{% if review %}
+				selected="selected" 
+			{% endif %}
+		>needs</option>
+		<option value="0"
+			{% if not review %}
+				selected="selected" 
+			{% endif %}
+		>does not need</option>
 	</select>
 	a review document 
 	<span id="review_yes"> every
-		<input type="number" name="review_offset" />
+		<input type="number" name="review_offset"
+		value="{% if review %}{{review.abs_offset}}{% endif %}"
+		/>
 		<select name="review_duration">
 			{% for d in duration %}
-			<option value="{{d.value}}">{{d}}</option>
+				<option value="{{d.value}}" 
+					{% if review and d.value == review.duration %} 
+	                    selected="selected" 
+	                {% endif %}
+	            >{{d}}</option>
 			{% endfor %}
 		</select>
 		from the most recent signature date

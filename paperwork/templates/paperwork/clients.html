@@ -11,7 +11,7 @@ Can you list off some of your clients? Of course, don't use their full names, or
 	You've told me about these clients:<br>
     <ul>
     {% for client in client_list %}
-        <li> {{ client.name }} </li>
+        <li> <a href="/client/{{client.id}}/">{{ client.name }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
