@@ -15,6 +15,7 @@ pylint==1.8.2
 pylint-django==0.9.3
 pylint-plugin-utils==0.2.6
 pytz==2017.3
+selenium==3.11.0
 singledispatch==3.4.0.3
 six==1.11.0
 whitenoise==3.2
