@@ -1,4 +1,5 @@
 import os
+import sys
 import errno
 import re
 
@@ -23,7 +24,7 @@ EXTRA_OPTIONS = " ".join([
 
     # first, Django's subclassing of Models, etc. give lotsa errors.
     # Make Pylint smart about django.
-    "--load-plugins pylint_django",
+    '--load-plugins="pylint_django,linecount"',
 
     "--max-line-length=80", # be rigorous in line length
 
@@ -37,6 +38,9 @@ class StyleTestCase(TestCase):
         # keep a list of failing style files
         threshold_score = 8
         failing_style_files = []
+
+        # make sure you can reach the linecount checker
+        sys.path.append('./paperwork/')
 
         mkdir_p(PYLINT_OUT)
         for root, _, files in os.walk("./paperwork", topdown=True):
