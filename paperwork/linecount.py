@@ -6,7 +6,7 @@ from pylint.checkers import BaseChecker
 # This is our checker class.
 # Checkers should always inherit from `BaseChecker`.
 class LineCountChecker(BaseChecker):
-    """Add class member attributes to the class locals dictionary."""
+    """Too many lines in a method - it probably should be refactored"""
 
     # This class variable defines the type of checker that we are implementing.
     # In this case, we are implementing an Token checker.
@@ -23,7 +23,7 @@ class LineCountChecker(BaseChecker):
         # a unique symbol that identifies the message,
         # and a detailed help message
         # that will be included in the documentation.
-        'C4401': ('Method is too long (%s/%s)',
+        'R4401': ('Method is too long (%s/%s)',
                   'method-line-count',
                   'Used when a method is longer than a given number of lines.')
     }
