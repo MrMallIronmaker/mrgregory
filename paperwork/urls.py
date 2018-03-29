@@ -25,7 +25,7 @@ urlpatterns = [
     url(r'^client/(?P<client_id>[0-9]+)/$',
         views.view_client, name="client"),
     url(r'^deliverable/(?P<deliverable_id>[0-9]+)'
-        r'^edit_deadline/(?P<deadline_id>[0-9]+)/$',
+        r'/edit_deadline/(?P<deadline_id>[0-9]+)/$',
         views.edit_deadline),
     url(r'^edit_deliverable/(?P<deliverable_id>[0-9]+)/$',
         views.edit_deliverable),

@@ -12,6 +12,7 @@ from paperwork import logic
 
 @login_required
 def view_tasks(request):
+    """See all not-cimpleted tasks in a list"""
     logic.create_tasks()
     tasks_by_dates = logic.get_tasks_by_dates()
     return render(request, 'paperwork/tasks.html', {
@@ -21,6 +22,7 @@ def view_tasks(request):
 
 @login_required
 def completed_tasks(request):
+    """ see all copleted tasks in a list """
     logic.create_tasks()
     tasks_by_dates = logic.get_completed_tasks_by_dates()
     return render(request, 'paperwork/tasks.html', {
@@ -30,8 +32,8 @@ def completed_tasks(request):
 
 @login_required
 def complete_task(request, task_id):
+    """ a POST request that indicates a particular task is complete."""
     if request.method == "POST":
-        print request.POST
         logic.update_completed_tasks({
             "completed" : int(task_id)
             })
@@ -41,7 +43,6 @@ def complete_task(request, task_id):
 @login_required
 def uncomplete_task(request, task_id):
     if request.method == "POST":
-        print request.POST
         logic.update_completed_tasks({
             "uncompleted" : int(task_id)
             })
@@ -50,6 +51,7 @@ def uncomplete_task(request, task_id):
 
 @login_required
 def dpc(request):
+    """ short for "deliverables per client" """
     # if it's a post, update the task statuses
     if request.method == "POST":
         logic.update_task_statuses(request.POST)
