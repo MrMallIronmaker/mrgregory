@@ -210,8 +210,8 @@ class WebTestCase(LiveServerTestCase):
         # TODO: assert something about the database status here
 
         def td_checkbox_checked_attr(row, col):
-            xpath = "//tbody/tr[{}]/td[{}]/input".format(row + 2, col + 2)
-
+            format_string = "//tbody/tr[{t_row}]/td[{t_col}]/input"
+            xpath = format_string.format(t_row=row+2, t_col=col+2)
             return driver.find_element_by_xpath(xpath).get_attribute("checked")
 
         self.assertEqual("true", td_checkbox_checked_attr(0, 0))
@@ -233,7 +233,8 @@ class WebTestCase(LiveServerTestCase):
         driver.find_element_by_xpath("//i[2]").click()
 
         def get_text_of_h4_at_index(index):
-            return driver.find_element_by_xpath("//h4[{}]".format(index)).text
+            xpath = "//h4[{index}]".format(index=index)
+            return driver.find_element_by_xpath(xpath).text
 
         self.assertEqual("March 27, 2018", get_text_of_h4_at_index(1))
         self.assertEqual("April 3, 2018", get_text_of_h4_at_index(2))
