@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 
 from paperwork import logic
 
@@ -17,7 +18,7 @@ def view_tasks(request):
     tasks_by_dates = logic.get_tasks_by_dates()
     return render(request, 'paperwork/tasks.html', {
         "tasks_by_dates" : tasks_by_dates,
-        "other_link" : "/completed_tasks/"
+        "other_link" : reverse('paperwork:completed_tasks')
     })
 
 @login_required
@@ -27,7 +28,7 @@ def completed_tasks(request):
     tasks_by_dates = logic.get_completed_tasks_by_dates()
     return render(request, 'paperwork/tasks.html', {
         "tasks_by_dates" : tasks_by_dates,
-        "other_link" : "/tasks/"
+        "other_link" : reverse('paperwork:tasks')
     })
 
 @login_required
@@ -66,4 +67,4 @@ def dpc(request):
 @login_required
 def make_tasks(_):
     logic.create_tasks()
-    return HttpResponseRedirect("/tasks/")
+    return HttpResponseRedirect(reverse('paperwork:tasks'))

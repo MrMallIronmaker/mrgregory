@@ -4,7 +4,7 @@
 
 <h4> Client Info </h4>
 
-<form action="/client/{{client.id}}/" method="post">
+<form action="{% url 'paperwork:client' client.id %}" method="post">
 {% csrf_token %}
 Client's name: 
 <input type="number" name="id" value={{client.id}} hidden="true"/>
@@ -17,5 +17,5 @@ Client's name:
 <input type="submit" value="update" />
 </form>
 
-<a href="/clients/">Return to clients listing.</a>
+<a href="{% url 'paperwork:clients' %}">Return to clients listing.</a>
 {% endblock %}

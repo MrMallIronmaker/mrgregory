@@ -19,7 +19,7 @@ Right now, I only have dates programmed in. Something like the date of the menta
 
 <h4> Add an Information Type </h4>
 
-<form action="/client_info_types/" method="post">
+<form action="{% url 'paperwork:cit' %}" method="post">
 {% csrf_token %}
 What is the name of this piece of information? 
 <input type="text" name="name" />
@@ -27,5 +27,5 @@ What is the name of this piece of information?
 </form>
 
 Once you have a type of information or two, we can move on to the next step.<br>
-Time to <a href="/clients/">add in your clients!</a>
+Time to <a href="{% url 'paperwork:clients' %}">add in your clients!</a>
 {% endblock %}
