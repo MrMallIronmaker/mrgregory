@@ -1,17 +1,4 @@
 """ Tests for the web-particular things. Like clicking on buttons. """
-
-"""
-from selenium import webdriver
-
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import NoAlertPresentException
-import unittest, time, re
-"""
-
-import time
-
 from django.test import LiveServerTestCase
 from django.contrib.auth.models import User
 
