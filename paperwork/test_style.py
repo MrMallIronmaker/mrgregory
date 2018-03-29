@@ -74,16 +74,29 @@ class StyleTestsMeta(type):
         def generated_function(self):
             mkdir_p(os.path.join(PYLINT_OUT, root))
             target_filename = os.path.join(root, name)
-            (pylint_stdout, _) = lint.py_run(
-                target_filename + EXTRA_OPTIONS,
-                return_std=True)
-
             output_filename = target_filename[:-len(PYTHON_EXTENSION)] + '.txt'
             output_filename = os.path.join(PYLINT_OUT, output_filename)
 
-            full_output = pylint_stdout.getvalue()
-            with open(output_filename, 'w') as output_file:
-                output_file.write(full_output)
+            # if the output file is newer than the original file
+            
+            if os.path.exists(output_filename) \
+                and os.path.isfile(output_filename) \
+                and os.path.getmtime(output_filename) > \
+                    os.path.getmtime(target_filename):
+                # assume that the file hasn't changed,
+                # and so read the score.
+                with open(output_filename, 'r') as output_file:
+                    full_output = output_file.read()
+
+            # just gotta run the file.
+            else:
+                (pylint_stdout, _) = lint.py_run(
+                    target_filename + EXTRA_OPTIONS,
+                    return_std=True)
+                full_output = pylint_stdout.getvalue()
+                with open(output_filename, 'w') as output_file:
+                    output_file.write(full_output)
+
             regex = r"Your code has been rated at (-?[\d\.]+)/10"
             matches = re.findall(regex, full_output)
             self.assertLessEqual(len(matches), 1)
