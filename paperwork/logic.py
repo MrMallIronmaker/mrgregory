@@ -399,7 +399,7 @@ def group_tasks_by_dates(all_tasks):
     tasks_by_dates = []
     for key, group in groupby(all_tasks, get_date):
         tasks_by_dates.append({
-            "date": key,
+            "date": key.strftime("%a %b %-d, %Y"),
             "tasks": [t for t in group]
             })
     return tasks_by_dates

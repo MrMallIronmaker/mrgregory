@@ -1,4 +1,6 @@
 """ Tests for the web-particular things. Like clicking on buttons. """
+from datetime import date, timedelta
+
 from django.test import LiveServerTestCase
 from django.contrib.auth.models import User
 
@@ -6,6 +8,7 @@ from selenium.webdriver.support.ui import Select
 from selenium import webdriver
 
 from paperwork.test_integration import create_cit
+from paperwork.models import Task
 
 class WebTestCase(LiveServerTestCase):
     """ Functional tests for the way Jordan may use the website"""
@@ -236,16 +239,24 @@ class WebTestCase(LiveServerTestCase):
             xpath = "//h4[{index}]".format(index=index)
             return driver.find_element_by_xpath(xpath).text
 
-        self.assertEqual("March 27, 2018", get_text_of_h4_at_index(1))
-        self.assertEqual("April 3, 2018", get_text_of_h4_at_index(2))
-        self.assertEqual("April 9, 2018", get_text_of_h4_at_index(3))
-        self.assertEqual("May 2, 2018", get_text_of_h4_at_index(4))
-        self.assertEqual("Feb. 4, 2019", get_text_of_h4_at_index(5))
-        self.assertEqual("Feb. 11, 2019", get_text_of_h4_at_index(6))
-        self.assertEqual("Feb. 18, 2019", get_text_of_h4_at_index(7))
-        self.assertEqual("Feb. 22, 2019", get_text_of_h4_at_index(8))
+        self.assertEqual("Tue Mar 27, 2018", get_text_of_h4_at_index(1))
+        self.assertEqual("Tue Apr 3, 2018", get_text_of_h4_at_index(2))
+        self.assertEqual("Mon Apr 9, 2018", get_text_of_h4_at_index(3))
+        self.assertEqual("Wed May 2, 2018", get_text_of_h4_at_index(4))
+        self.assertEqual("Mon Feb 4, 2019", get_text_of_h4_at_index(5))
+        self.assertEqual("Mon Feb 11, 2019", get_text_of_h4_at_index(6))
+        self.assertEqual("Mon Feb 18, 2019", get_text_of_h4_at_index(7))
+        self.assertEqual("Fri Feb 22, 2019", get_text_of_h4_at_index(8))
+
+        old_date = date.today()
         driver.find_element_by_xpath("(//button[@type='submit'])[3]").click()
-        self.assertEqual("March 11, 2019", get_text_of_h4_at_index(6))
-        self.assertEqual("March 18, 2019", get_text_of_h4_at_index(7))
-        self.assertEqual("March 25, 2019", get_text_of_h4_at_index(8))
-        self.assertEqual("March 29, 2019", get_text_of_h4_at_index(9))
+        new_date = date.today()
+        self.assertEqual(
+            old_date, 
+            new_date, 
+            "Date changed while the test was being run, "
+            "so the test must be run again.")
+        target_date = (new_date + timedelta(days=365))
+        target_date_string = target_date.strftime("%a %b %-d, %Y")
+
+        self.assertEqual(target_date_string, get_text_of_h4_at_index(9))
