@@ -84,7 +84,7 @@ def set_task_status():
     client = get_test_client()
     deliverable = get_test_deliverable()
     logic.update_task_statuses({
-        "c{0}-d{1}".format(client.id, deliverable.id) : "on"
+        get_id_string(client.id, deliverable.id) : "on"
         })
 
 def get_test_task_status():
@@ -155,6 +155,10 @@ def update_client():
         "name" : CLIENT_NAME,
         CIT_TITLE : UPDATE_START_DATE.strftime("%Y-%m-%d")
         })
+
+def get_id_string(client_id, deliverable_id):
+    format_string = "c{cid}-d{did}"
+    return format_string.format(cid=client_id, did=deliverable_id)
 
 class IntegrationTestCase(TestCase):
     """
@@ -283,8 +287,8 @@ class IntegrationTestCase(TestCase):
         deliverable = get_test_deliverable()
         other_deliverable = get_other_test_deliverable()
         logic.update_task_statuses({
-            "c{0}-d{1}".format(client.id, deliverable.id) : "on",
-            "c{0}-d{1}".format(client.id, other_deliverable.id) : "on",
+            get_id_string(client.id, deliverable.id) : "on",
+            get_id_string(client.id, other_deliverable.id) : "on",
             })
 
         # make tasks
@@ -316,8 +320,8 @@ class IntegrationTestCase(TestCase):
         deliverable = get_test_deliverable()
         other_client = get_other_test_client()
         logic.update_task_statuses({
-            "c{0}-d{1}".format(client.id, deliverable.id) : "on",
-            "c{0}-d{1}".format(other_client.id, deliverable.id) : "on",
+            get_id_string(client.id, deliverable.id) : "on",
+            get_id_string(other_client.id, deliverable.id) : "on",
             })
 
         logic.create_tasks()

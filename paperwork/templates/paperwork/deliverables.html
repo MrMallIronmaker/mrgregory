@@ -9,18 +9,17 @@
 	I know about these deliverables:<br>
     <ul>
     {% for deliverable in deliverable_list %}
-        <li> <a href="/deliverable/{{deliverable.id}}/"> {{ deliverable.title }} </a> </li>
+        <li> <a href="{% url 'paperwork:deliverable' deliverable.id %}"> {{ deliverable.title }} </a> </li>
     {% endfor %}
     </ul>
 {% else %}
     You haven't told me about deliverables yet. You can create a new one with the link below.<br>
 {% endif %}
 <br>
-<a href="/new_deliverable/"> New Deliverable</a><br>
+<a href="{% url 'paperwork:new_deliverable' %}"> New Deliverable</a><br>
 <br>
 
 {% if deliverable_list %}
-	Now that you've got your deliverables, you can <a href="/clients/">add 
-	your clients</a>.
+	Now that you've got your deliverables, you can <a href="{% url 'paperwork:clients' %}">add your clients</a>.
 {% endif %}
 {% endblock %}
