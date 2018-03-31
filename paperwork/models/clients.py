@@ -40,7 +40,8 @@ class ClientInfo(models.Model):
     info_type = models.ForeignKey(ClientInfoType, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0}'s {1}".format(self.client, self.info_type)
+        return "{client}'s {info_type}".format(
+            client=self.client, info_type=self.info_type)
     def __unicode__(self):
         return self.__str__()
 
@@ -56,8 +57,11 @@ class ClientInfoDate(ClientInfo):
 
     def __str__(self):
         if self.date:
-            return "{0} was {1}".format(self.clientinfo_ptr, self.date)
-        return "{0} has not occurred".format(self.clientinfo_ptr)
+            return "{client_info} was {date}".format(
+                client_info=self.clientinfo_ptr, date=self.date)
+        return "{client_info} has not occurred".format(
+            client_info=self.clientinfo_ptr)
+
     def __unicode__(self):
         return self.__str__()
 

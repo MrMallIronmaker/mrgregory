@@ -27,7 +27,7 @@ To start out, add one deliverable.
 	}
 </script>
 
-<form action="/new_deliverable/" method="post">
+<form action="{% url 'paperwork:new_deliverable' %}" method="post">
 	{% csrf_token %}
 	<input type="text" name="title" /> is due 
 	<input type="number" name="number" />

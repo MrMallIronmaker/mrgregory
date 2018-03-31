@@ -17,7 +17,7 @@ function checkSomeBoxes() {
 }
 </script>
 
-<form action="/dpc/" method="post">
+<form action="{% url 'paperwork:dpc' %}" method="post">
 	{% csrf_token %}
 	<table>
 		<tr>
@@ -41,7 +41,7 @@ function checkSomeBoxes() {
 	<input type="submit" value="Submit" />
 </form>
 <br>
-Finally, generate your tasks <a href="/tasks/">here</a>.
+Finally, generate your tasks <a href="{% url 'paperwork:tasks' %}">here</a>.
 
 <script type="text/javascript">
 	checkSomeBoxes();

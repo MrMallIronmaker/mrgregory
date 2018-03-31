@@ -5,4 +5,8 @@ staticfiles
 .env
 db.sqlite3
 
+# my pylint output
 */pylint_out/
+
+# Selenium stuff
+geckodriver.log

@@ -12,7 +12,7 @@ the client's {{dl.final.relative_info_type.title}}.<br>
     This deliverable is not reviewed.<br>
 {% endif %}
 <br>
-<br><a href="/edit_deliverable/{{dl.id}}/">Edit</a>
+<br><a href="{% url 'paperwork:edit_deliverable' dl.id %}">Edit</a>
 <br>
 
 {% if step_deadlines %}
@@ -21,7 +21,7 @@ the client's {{dl.final.relative_info_type.title}}.<br>
     <ul>
     {% for step_deadline in step_deadlines %}
         <li> 
-        <form action="/deliverable/{{dl.id}}/edit_deadline/{{step_deadline.id}}/" method="post">
+        <form action="{% url 'paperwork:edit_deadline' dl.id step_deadline.id %}" method="post">
             {% csrf_token %}
             <!-- let's do. This should be a form thing.
             It may make sense to add a few object methods. -->
@@ -68,7 +68,7 @@ the client's {{dl.final.relative_info_type.title}}.<br>
 {% endif %}
 <br>
 
-<form action="/deliverable/{{dl.id}}/new_deadline/" method="post">
+<form action="{% url 'paperwork:new_deadline' dl.id %}" method="post">
 {% csrf_token %}
 I want to 
 <input type="text" name="nd-title" placeholder="submit to my supervisor"/>
@@ -95,5 +95,5 @@ I
 <br>
 
 When you're finished adding deadlines, you can return to the 
-<a href="/deliverables/">deliverables</a>.
+<a href="{% url 'paperwork:deliverables' %}">deliverables</a>.
 {% endblock %}

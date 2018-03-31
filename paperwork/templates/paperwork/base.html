@@ -2,8 +2,8 @@
 {% endblock %}
 
 <hr>
-<a href="/">home</a> |
-<a href="/clients/">clients</a> |
-<a href="/deliverables/">deliverables</a> |
-<a href="/dpc/">who gets what</a> |
-<a href="/tasks/">tasks</a>
+<a href="{% url 'paperwork:home' %}">home</a> |
+<a href="{% url 'paperwork:clients' %}">clients</a> |
+<a href="{% url 'paperwork:deliverables' %}">deliverables</a> |
+<a href="{% url 'paperwork:dpc' %}">who gets what</a> |
+<a href="{% url 'paperwork:tasks' %}">tasks</a>

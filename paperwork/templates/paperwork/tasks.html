@@ -10,7 +10,12 @@
 			{% for task in tasks_by_date.tasks %}
 			<li>
 			<form method="post" 
-			action="/tasks/{% if task.completed %}uncomplete{% else %}complete{% endif %}/{{task.id}}/" style="display:inline;">
+				{% if task.completed %}
+					action="{% url 'paperwork:uncomplete_task' task.id %}"
+				{% else %}
+					action="{% url 'paperwork:complete_task' task.id %}"
+				{% endif %}
+				style="display:inline;">
 				{% csrf_token %}
 				<input type="text" name="from" hidden="true" value="{{request.path}}">
 			    <button type="submit">{% if task.completed %}un-complete{% else %}complete{% endif %}</button>
@@ -24,11 +29,11 @@
 	<input type="submit" value="submit" />
 	</form>
 {% else %}
-    No tasks! Maybe you need to <a href="/make_tasks/">generate tasks</a>?
+    No tasks! Maybe you need to <a href="{% url 'paperwork:dpc' %}">make sure you're requesting them</a>?
 {% endif %}
 <br>
 <br>
 
-<a href="/" >Back to the beginning.</a>
+<a href="{% url 'paperwork:home' %}" >Back to the beginning.</a>
 
 {% endblock %}

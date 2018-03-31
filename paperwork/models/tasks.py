@@ -14,10 +14,10 @@ class TaskStatus(models.Model):
     needed = models.BooleanField()
 
     def __str__(self):
-        return "{0} {1} {2}".format(
-        	   self.client,
-        	   ["does not need", "needs"][int(self.needed)],
-        	   self.deliverable)
+        return "{client} {may_need} {deliverable}".format(
+        	   client=self.client,
+        	   may_need=["does not need", "needs"][int(self.needed)],
+        	   deliverable=self.deliverable)
 
     def __unicode__(self):
         return self.__str__()
@@ -34,12 +34,13 @@ class Task(models.Model):
     completed = models.BooleanField()
 
     def __str__(self):
-        return "{0} for {1}'s {2} is due {3}{4}".format(
-            self.deadline,
-            self.task_status.client,
-            self.task_status.deliverable,
-            self.date,
-            ["", " (completed)"][int(self.completed)])
+        fmt = "{deadline} for {client}'s {deliverable} is due {date}{completed}"
+        return fmt.format(
+            deadline=self.deadline,
+            client=self.task_status.client,
+            deliverable=self.task_status.deliverable,
+            date=self.date,
+            completed=["", " (completed)"][int(self.completed)])
 
     def __unicode__(self):
         return self.__str__()
